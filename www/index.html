@@ -69,14 +69,14 @@ svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:
 .btns.two{grid-template-columns:1fr 1fr}
 
 /* mix */
-.slot{display:flex;align-items:center;gap:6px;padding:12px 10px 12px 16px;border-bottom:1px solid var(--ln)}
-.arr{flex:none;width:40px;height:72px;border:0;background:none;color:var(--mut);display:grid;place-items:center}
+.slot{display:flex;align-items:center;gap:4px;padding:8px 6px 8px 16px;border-bottom:1px solid var(--ln)}
+.arr{flex:none;width:38px;height:64px;border:0;background:none;color:var(--mut);display:grid;place-items:center}
 .arr svg{width:24px;height:24px}
-.slot .pic{width:78px;aspect-ratio:4/5;flex:none}
+.slot .pic{width:66px;aspect-ratio:4/5;flex:none}
 .slot .tx{flex:1;min-width:0}
 .slot .tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slot .ph{width:100%;display:grid;place-items:center;color:var(--mut);font-size:12px;text-align:center;padding:4px}
-.mixact{padding:18px 16px 0;display:grid;gap:10px;grid-template-columns:1fr 1.4fr}
+.mixact{padding:12px 16px 0;display:grid;gap:10px;grid-template-columns:1.4fr 1fr}
 
 /* outfits */
 .out{padding:14px 16px;border-bottom:1px solid var(--ln)}
@@ -145,6 +145,23 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 .sheet .gap{height:6px}
 .toast{position:fixed;inset-inline:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:40;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:10px;font-size:14px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}
 .toast.show{opacity:1;transform:none}
+.score{margin:14px 16px 0;padding:12px 14px;background:var(--sf);border-radius:10px;border:1px solid var(--ln)}
+.score .sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bar2{height:6px;background:var(--tile);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.bar2 i{display:block;height:100%;background:var(--den);border-radius:3px;transition:width .25s}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:13px;background:var(--tile)}
+.pill.g{background:#d6efdc;color:#16642b}.pill.m{background:#fbeabf;color:#6b4d00}.pill.b{background:#f6d4d1;color:#8a1d15}
+@media(prefers-color-scheme:dark){.pill.g{background:#1d3d27;color:#8fe0a6}.pill.m{background:#47390f;color:#f4d27a}.pill.b{background:#4a1f1c;color:#ffb4ab}}
+.best{border:0;background:none;color:var(--den);font-weight:600;padding:4px 0 0;font-size:13px;display:block}
+.rc{padding:14px 0;border-bottom:1px solid var(--ln)}
+.rc .ims .pic{aspect-ratio:1}
+.rm{display:flex;align-items:center;gap:10px;margin:10px 0 8px}
+.rb{display:flex;gap:8px}
+.rb button{flex:1;padding:9px 6px;border-radius:10px;border:1.5px solid var(--ln);background:var(--sf);font-size:13.5px;font-weight:600}
+.rb button.p{background:var(--den);border-color:var(--den);color:var(--onden)}
+.rb button:disabled{opacity:.45}
+.rc.liked{background:linear-gradient(90deg,transparent,#2e7d3218)}.rc.disliked{opacity:.5}
+.pickrow{grid-template-columns:repeat(3,1fr)!important}
 .hide{display:none!important}
 :focus-visible{outline:2px solid var(--den);outline-offset:2px}
 </style>
@@ -170,11 +187,13 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 </section>
 
 <section id="v-mix" class="hide">
-  <div id="slots"></div>
   <div class="mixact">
+    <button class="btn" id="recBtn">رشّح لي أطقم</button>
     <button class="btn ghost" id="shuffle"></button>
-    <button class="btn" id="saveOutfit">حفظ الطقم</button>
   </div>
+  <div class="score" id="score"></div>
+  <div id="slots"></div>
+  <div class="btns" style="margin-top:14px"><button class="btn ghost" id="saveOutfit">حفظ الطقم</button></div>
 </section>
 
 <section id="v-outfits" class="hide">
@@ -211,24 +230,23 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
       <h2>قطعة جديدة</h2>
       <div class="stage" id="stage"></div>
       <div id="photoTools" class="hide">
-        <div class="tools">
-          <button class="sw" id="cutSw"><span class="k"></span>إزالة الخلفية</button>
-          <button class="lnk" id="retake">صورة تانية</button>
-        </div>
-        <div class="tol" id="tol"><span>حساسية</span><input type="range" id="tolR" min="12" max="90" value="34"></div>
-        <p class="hint hide" id="cutHint">لو جزء من القطعة اتمسح قلّل الحساسية، ولو فضلت خلفية زوّدها.</p>
+        <div class="tools"><span class="hint" style="margin:0">دوس على الصورة عشان تاخد اللون من القطعة نفسها.</span><button class="lnk" id="retake">صورة تانية</button></div>
       </div>
       <label class="f">الاسم</label>
       <input type="text" id="name" placeholder="مثال: قميص أبيض">
       <label class="f">النوع</label>
       <div class="seg" id="typeSeg"></div>
       <div class="two">
-        <div><label class="f">اللون</label><input type="color" id="color" value="#27407a"></div>
+        <div><label class="f">اللون: <b id="cname"></b></label><input type="color" id="color" value="#27407a"></div>
         <div><label class="f">الموسم</label>
           <select id="season"><option>كل السنة</option><option>صيف</option><option>شتا</option><option>مواسم انتقالية</option></select></div>
       </div>
-      <label class="f">المناسبة</label>
-      <select id="occ"><option>كاجوال</option><option>رسمي</option><option>رياضي</option><option>خروجة</option></select>
+      <div class="two">
+        <div><label class="f">المناسبة</label>
+          <select id="occ"><option>كاجوال</option><option>رسمي</option><option>رياضي</option><option>خروجة</option></select></div>
+        <div><label class="f">النقشة</label>
+          <select id="pattern"><option>سادة</option><option>مخطط</option><option>مربعات</option><option>مطبوع</option></select></div>
+      </div>
       <button class="btn" id="saveItem">حفظ القطعة</button>
       <button class="btn ghost" data-close>إلغاء</button>
     </div>
@@ -245,6 +263,14 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
       <h2 id="pickTitle"></h2>
       <div id="pickList"></div>
       <button class="btn dan hide" id="clearDay">شيل الطقم من اليوم</button>
+      <button class="btn ghost" data-close>إغلاق</button>
+    </div>
+
+    <div id="m-rec" class="hide">
+      <h2>ترشيحات الألوان</h2>
+      <p class="sub" style="margin:-6px 0 4px">مرتبة حسب تناسق الألوان والمناسبة والموسم. اضغط "يعجبني" أو "مش عاجبني" والتطبيق يتعلم ذوقك.</p>
+      <div id="recList"></div>
+      <button class="btn" id="recMore">غيّر الترشيحات</button>
       <button class="btn ghost" data-close>إغلاق</button>
     </div>
 
@@ -275,6 +301,8 @@ const P={
   cam:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.8"/>',
   img:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/>',
   shuf:'<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+  spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"/><path d="M19 16v4M17 18h4"/>',
+  file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/>',
   r:'<path d="m9 6 6 6-6 6"/>',
   l:'<path d="m15 6-6 6 6 6"/>'
 };
@@ -307,7 +335,8 @@ const byId=id=>items.find(i=>i.id===id);
 const outfitItems=o=>o.ids.map(byId).filter(Boolean);
 function sheet(mode){
   $('#sbg').classList.toggle('show',!!mode);
-  ['form','detail','pick','name'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
+  const sh=document.querySelector('#sbg .sheet');if(sh)sh.scrollTop=0;
+  ['form','detail','pick','name','rec'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.target.id==='sbg')sheet(null)});
 
@@ -316,6 +345,7 @@ const TABS=[['wardrobe','الدولاب','grid'],['mix','تركيب','mix'],['ou
 TABS.forEach(([k,l,i])=>{const b=$('#t-'+k);b.innerHTML=ic(i)+'<span>'+l+'</span>';b.onclick=()=>tab(k)});
 $('#addBtn').innerHTML=ic('plus')+'<span>قطعة</span>';
 $('#shuffle').innerHTML=ic('shuf')+'<span>عشوائي</span>';
+$('#recBtn').innerHTML=ic('spark')+'<span>رشّح لي أطقم</span>';
 $('#prevW').innerHTML=ic('r');$('#nextW').innerHTML=ic('l');
 function tab(n){
   TABS.forEach(([k])=>{$('#v-'+k).classList.toggle('hide',k!==n);$('#t-'+k).classList.toggle('on',k===n)});
@@ -330,7 +360,7 @@ function renderWardrobe(){
   $('#filters').innerHTML=[['all','الكل'],...Object.entries(TYPES)].map(([k,l])=>`<button data-k="${k}" class="${filter===k?'on':''}">${l}<small>${cnt(k)}</small></button>`).join('');
   $('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.k;renderWardrobe()});
   const list=items.filter(i=>filter==='all'||i.type===filter).slice().reverse();
-  $('#grid').innerHTML=list.map(i=>`<button class="tile" data-id="${i.id}"><div class="pic">${imgTag(i)}</div><div class="cap"><b>${esc(i.name||'بدون اسم')}</b><i style="background:${i.color}"></i></div><div class="sub">${esc(i.occ)} · ${esc(i.season)}</div></button>`).join('');
+  $('#grid').innerHTML=list.map(i=>`<button class="tile" data-id="${i.id}"><div class="pic">${imgTag(i)}</div><div class="cap"><b>${esc(i.name||'بدون اسم')}</b><i style="background:${i.color}"></i></div><div class="sub">${esc(cname(i.color))} · ${esc(i.occ)}</div></button>`).join('');
   $('#grid').querySelectorAll('.tile').forEach(e=>e.onclick=()=>showDetail(+e.dataset.id));
   $('#empty').classList.toggle('hide',items.length>0);
   $('#filters').classList.toggle('hide',!items.length);
@@ -340,7 +370,7 @@ function showDetail(id){
   const i=byId(id);if(!i)return;openId=id;
   $('#dStage').innerHTML=imgTag(i);
   $('#dName').textContent=i.name||'بدون اسم';
-  $('#dInfo').textContent=TYPES[i.type]+' · '+i.season+' · '+i.occ;
+  $('#dInfo').textContent=TYPES[i.type]+' · '+cname(i.color)+' · '+i.season+' · '+i.occ+((i.pattern&&i.pattern!=='سادة')?' · '+i.pattern:'');
   sheet('detail');
 }
 $('#del').onclick=async()=>{
@@ -354,7 +384,7 @@ $('#del').onclick=async()=>{
 async function getPhoto(source){
   const C=window.Capacitor;
   let cam=null;
-  try{if(C&&C.isNativePlatform&&C.isNativePlatform())cam=(C.Plugins&&C.Plugins.Camera)||C.registerPlugin('Camera')}catch(e){}
+  try{if(source!=='file'&&C&&C.isNativePlatform&&C.isNativePlatform())cam=(C.Plugins&&C.Plugins.Camera)||C.registerPlugin('Camera')}catch(e){}
   if(cam){
     try{
       const r=await cam.getPhoto({quality:90,allowEditing:false,resultType:'dataUrl',source:source==='camera'?'CAMERA':'PHOTOS',correctOrientation:true,width:1280});
@@ -375,70 +405,208 @@ async function getPhoto(source){
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const loadCanvas=(url,max)=>new Promise((res,rej)=>{
   const im=new Image();
-  im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=mk(Math.round(im.width*k),Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c)};
+  im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=mk(Math.max(1,Math.round(im.width*k)),Math.max(1,Math.round(im.height*k)));c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c)};
   im.onerror=rej;im.src=url;
 });
-function avgColor(c){
-  const x=c.getContext('2d',{willReadFrequently:true}),w=c.width,h=c.height;
-  const x0=Math.round(w*.25),y0=Math.round(h*.25),ww=Math.max(1,Math.round(w*.5)),hh=Math.max(1,Math.round(h*.5));
-  const d=x.getImageData(x0,y0,ww,hh).data;let r=0,g=0,b=0,n=0;
-  for(let i=0;i<d.length;i+=16){if(d[i+3]>200){r+=d[i];g+=d[i+1];b+=d[i+2];n++}}
-  if(!n)return null;
-  return '#'+[r,g,b].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('');
+function hasAlpha(c){
+  const d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,c.width,c.height).data;
+  let n=0;for(let i=3;i<d.length;i+=16)if(d[i]<200)n++;
+  return n>(d.length/16)*.02;
 }
 
-/* ---------- background removal (offline) ---------- */
-function cutout(src,tol){
-  const k=Math.min(1,700/Math.max(src.width,src.height)),w=Math.round(src.width*k),h=Math.round(src.height*k);
-  const c=mk(w,h),x=c.getContext('2d',{willReadFrequently:true});x.drawImage(src,0,0,w,h);
-  const im=x.getImageData(0,0,w,h),d=im.data,N=w*h;
-  const R=[],G=[],B=[],add=p=>{R.push(d[p*4]);G.push(d[p*4+1]);B.push(d[p*4+2])};
-  for(let i=0;i<w;i++){add(i);add((h-1)*w+i)}for(let j=0;j<h;j++){add(j*w);add(j*w+w-1)}
-  const med=a=>a.sort((p,q)=>p-q)[a.length>>1],br=med(R),bg=med(G),bb=med(B);
-  const cap2=(tol*1.8)**2,step2=(10+tol*.15)**2;
-  const m=new Uint8Array(N),st=new Int32Array(N);let sp=0;
-  const dB=p=>{const i=p*4,a=d[i]-br,b=d[i+1]-bg,e=d[i+2]-bb;return a*a+b*b+e*e};
-  const dP=(p,q)=>{const i=p*4,j=q*4,a=d[i]-d[j],b=d[i+1]-d[j+1],e=d[i+2]-d[j+2];return a*a+b*b+e*e};
-  const seed=p=>{if(!m[p]&&dB(p)<cap2){m[p]=1;st[sp++]=p}};
-  for(let i=0;i<w;i++){seed(i);seed((h-1)*w+i)}for(let j=0;j<h;j++){seed(j*w);seed(j*w+w-1)}
-  const tryN=(p,q)=>{if(!m[q]&&dB(q)<cap2&&dP(p,q)<step2){m[q]=1;st[sp++]=q}};
-  while(sp){const p=st[--sp],px=p%w,py=(p-px)/w;
-    if(px>0)tryN(p,p-1);if(px<w-1)tryN(p,p+1);if(py>0)tryN(p,p-w);if(py<h-1)tryN(p,p+w)}
-  const isBg=(px,py)=>px<0||py<0||px>=w||py>=h||m[py*w+px]===1;
-  let x0=w,y0=h,x1=-1,y1=-1,fg=0;
-  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
-    const p=py*w+px;
-    if(m[p]){d[p*4+3]=0;continue}
-    fg++;if(px<x0)x0=px;if(px>x1)x1=px;if(py<y0)y0=py;if(py>y1)y1=py;
-    if(isBg(px-1,py)||isBg(px+1,py)||isBg(px,py-1)||isBg(px,py+1))d[p*4+3]=150;
+/* ---------- color engine ---------- */
+const hex2=(r,g,b)=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+function toHSL(hex){
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  let h=0,s=0;
+  if(d){s=d/(1-Math.abs(2*l-1));
+    h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360}
+  return{h,s,l};
+}
+function colorName(h,s,l){
+  if(l<.13)return 'أسود';
+  if(l>.93&&s<.3||l>.88&&s<.12)return 'أبيض';
+  if(s<.12)return l<.32?'رمادي غامق':(l<.72?'رمادي':'رمادي فاتح');
+  if(h>=18&&h<50&&s<.6&&l>.62)return 'بيج';
+  if(h>=18&&h<50&&l<.42)return 'بني';
+  if(h>=40&&h<70&&s<.5&&l>=.35&&l<=.62)return 'كاكي';
+  if(h>=60&&h<100&&l<.42&&s<.7)return 'زيتي';
+  if(h<15||h>=345){if(l<.32)return 'بوردو';if(l>.78)return 'وردي فاتح';return 'أحمر'}
+  if(h<45)return l>.7?'خوخي':'برتقالي';
+  if(h<70)return 'أصفر';
+  if(h<165)return l<.28?'أخضر غامق':'أخضر';
+  if(h<195)return 'تركواز';
+  if(h<255){if(l<.3)return 'كحلي';if(l>.72)return 'سماوي';return 'أزرق'}
+  if(h<290)return 'بنفسجي';
+  return l>.7?'وردي فاتح':'وردي';
+}
+const CAT={'أسود':'N','أبيض':'N','رمادي غامق':'N','رمادي':'N','رمادي فاتح':'N','بيج':'N','كحلي':'V','بني':'E','كاكي':'E','زيتي':'E'};
+const _pc={};
+function prof(it){
+  const hx=(it&&it.color)||'#888888';
+  if(_pc[hx])return _pc[hx];
+  const q=toHSL(hx),name=colorName(q.h,q.s,q.l);
+  return _pc[hx]={...q,name,cat:CAT[name]||'C'};
+}
+const cname=hx=>prof({color:hx}).name;
+
+/* dominant color via k-means: drops background-like pixels (border median) so small items still work */
+function domColor(c){
+  const w=c.width,h=c.height,d=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h).data;
+  const A=hasAlpha(c),dist=(p,q)=>(p[0]-q[0])**2+(p[1]-q[1])**2+(p[2]-q[2])**2;
+  const med=a=>a.sort((x,y)=>x-y)[a.length>>1];
+  const br=[[],[],[]],push=(x,y)=>{const i=(y*w+x)*4;if(d[i+3]>200){br[0].push(d[i]);br[1].push(d[i+1]);br[2].push(d[i+2])}};
+  for(let x=0;x<w;x+=Math.max(1,w>>5)){push(x,0);push(x,h-1)}
+  for(let y=0;y<h;y+=Math.max(1,h>>5)){push(0,y);push(w-1,y)}
+  const bg=br[0].length?[med(br[0]),med(br[1]),med(br[2])]:null;
+  const sx=Math.max(1,Math.floor(w/70)),sy=Math.max(1,Math.floor(h/70)),all=[],fg=[];
+  for(let y=0;y<h;y+=sy)for(let x=0;x<w;x+=sx){
+    const i=(y*w+x)*4;if(d[i+3]<=200)continue;
+    const p=[d[i],d[i+1],d[i+2]];all.push(p);
+    if(!A&&bg&&dist(p,bg)>2500)fg.push(p);
   }
-  if(fg<N*.02||fg>N*.97)return null;
-  x.putImageData(im,0,0);
-  const bw=x1-x0+1,bh=y1-y0+1,pad=Math.round(Math.max(bw,bh)*.04);
-  const sx=Math.max(0,x0-pad),sy=Math.max(0,y0-pad),ex=Math.min(w,x1+pad+1),ey=Math.min(h,y1+pad+1);
-  const o=mk(ex-sx,ey-sy);o.getContext('2d').drawImage(c,sx,sy,ex-sx,ey-sy,0,0,ex-sx,ey-sy);
-  return o;
+  const pts=(A||fg.length<Math.max(10,all.length*.03))?all:fg;
+  if(pts.length<10)return null;
+  let cs=[pts[0]];
+  while(cs.length<3){let best=pts[0],bd=-1;for(const p of pts){let m=1e12;for(const q of cs){const v=dist(p,q);if(v<m)m=v}if(m>bd){bd=m;best=p}}cs.push(best)}
+  let cnt=[0,0,0];
+  for(let it=0;it<8;it++){
+    const sum=cs.map(()=>[0,0,0,0]);
+    for(const p of pts){let bi=0,bd=1e12;cs.forEach((q,i)=>{const v=dist(p,q);if(v<bd){bd=v;bi=i}});const t=sum[bi];t[0]+=p[0];t[1]+=p[1];t[2]+=p[2];t[3]++}
+    cs=cs.map((q,i)=>sum[i][3]?[sum[i][0]/sum[i][3],sum[i][1]/sum[i][3],sum[i][2]/sum[i][3]]:q);cnt=sum.map(t=>t[3]);
+  }
+  return hex2(...cs[cnt.indexOf(Math.max(...cnt))]);
+}
+
+/* pair scoring: returns {s:0-100, n:reason} */
+function pairScore(A,B){
+  const a=A.name,b=B.name,ca=A.cat,cb=B.cat;
+  const has=n=>a===n||b===n,pair=(x,y)=>(a===x&&b===y)||(a===y&&b===x);
+  if(a===b&&(a==='أسود'||a==='أبيض'))return{s:62,n:'لون واحد كله'};
+  if(a===b&&ca!=='N'||a===b&&a.startsWith('رمادي'))return Math.abs(A.l-B.l)>=.22?{s:70,n:'درجتين من نفس اللون'}:{s:38,n:'نفس اللون تمامًا بدون تباين'};
+  if(pair('كحلي','أسود'))return{s:40,n:'كحلي مع أسود مش أفضل تناسق'};
+  if(pair('بني','أسود'))return{s:42,n:'بني مع أسود مش متناسق'};
+  if(has('أبيض'))return{s:93,n:'الأبيض بيمشي مع أي لون'};
+  if(has('أسود'))return{s:88,n:'الأسود لون آمن مع الباقي'};
+  if(has('كحلي')){
+    const o=a==='كحلي'?B:A;
+    if(o.name==='بيج'||o.name==='كاكي'||o.name.startsWith('رمادي'))return{s:92,n:'كحلي مع '+o.name+' تناسق كلاسيكي'};
+    if(['بني','سماوي','وردي فاتح','وردي'].includes(o.name))return{s:84,n:'كحلي مع '+o.name+' تناسق جميل'};
+    if(o.cat==='C')return{s:66,n:'كحلي مع لون واضح'};
+    return{s:72,n:'كحلي مع '+o.name};
+  }
+  if(ca==='N'&&cb==='N')return{s:82,n:'ألوان محايدة مع بعض'};
+  if(ca==='N'||cb==='N'){
+    const o=ca==='N'?B:A,nn=ca==='N'?A:B;
+    if(nn.name==='بيج'&&o.cat==='C'&&o.s>.6)return{s:62,n:'بيج مع لون قوي'};
+    return{s:80,n:nn.name+' محايد مع '+o.name};
+  }
+  if(ca==='E'&&cb==='E')return{s:78,n:'ألوان ترابية متناسقة'};
+  if(ca==='E'||cb==='E'){
+    const o=ca==='E'?B:A;
+    if(o.name==='أزرق'||o.name==='سماوي')return{s:76,n:'ترابي مع أزرق تناسق مريح'};
+    return{s:58,n:'لون ترابي مع لون واضح'};
+  }
+  let dh=Math.abs(A.h-B.h);dh=Math.min(dh,360-dh);const dl=Math.abs(A.l-B.l);
+  if(dh<=25)return dl>=.2?{s:72,n:'درجات متقاربة من نفس العائلة'}:{s:48,n:'ألوان متقاربة جدًا بدون تباين'};
+  if(dh>=150)return Math.min(A.s,B.s)>.55?{s:42,n:'لونين متضادين قويين'}:{s:64,n:'ألوان متضادة متوازنة'};
+  if(dh>=90)return{s:50,n:'ألوان مختلفة محتاجة تدقيق'};
+  return{s:45,n:'ألوان مش متناسقة'};
+}
+
+/* learned taste (stored locally) */
+let prefs={};
+try{prefs=JSON.parse(localStorage.getItem('styly-prefs')||'{}')}catch(e){}
+const pkey=(x,y)=>[x,y].sort().join('|');
+const prefOf=(x,y)=>prefs[pkey(x,y)]||0;
+function learn(sel,sign){
+  const k=Object.keys(sel).filter(t=>sel[t]),ps=k.flatMap((x,i)=>k.slice(i+1).map(y=>[x,y]));
+  ps.forEach(([x,y])=>{const q=pkey(prof(sel[x]).name,prof(sel[y]).name);prefs[q]=Math.max(-30,Math.min(30,(prefs[q]||0)+sign*8))});
+  try{localStorage.setItem('styly-prefs',JSON.stringify(prefs))}catch(e){}
+}
+const FORM={'رسمي':3,'خروجة':2,'كاجوال':1,'رياضي':0};
+function recentItems(){
+  const now=new Date();now.setHours(0,0,0,0);const lim=new Date(now);lim.setDate(lim.getDate()-7);const s=new Set();
+  for(const p of plan){const d=parse(p.date);if(d>=lim&&d<=now){const o=outfits.find(x=>x.id===p.outfitId);if(o)o.ids.forEach(id=>s.add(id))}}
+  return s;
+}
+/* outfit scoring: sel={top,bottom,shoes,outer} -> {score,note} */
+function outfitScore(sel,recent){
+  const keys=['top','bottom','shoes','outer'].filter(k=>sel[k]);
+  if(keys.length<2)return null;
+  const pairs=[['top','bottom',.4],['bottom','shoes',.25],['top','shoes',.15],['outer','top',.1],['outer','bottom',.1]];
+  let sum=0,wt=0,bw=-1,best={n:''},worst={s:101,n:''},tb=null;
+  for(const [a,b,w] of pairs){
+    if(!sel[a]||!sel[b])continue;
+    const pa=prof(sel[a]),pb=prof(sel[b]),r=pairScore(pa,pb),v=Math.max(0,Math.min(100,r.s+prefOf(pa.name,pb.name)));
+    sum+=v*w;wt+=w;if(r.s*w>bw){bw=r.s*w;best={n:r.n}}if(r.s<worst.s)worst={s:r.s,n:r.n};if(a==='top'&&b==='bottom')tb=v;
+  }
+  if(!wt)return null;
+  let score=sum/wt,pen=0;const why=[];
+  if(tb!==null)score=Math.min(score,tb+15);
+  if(worst.s<50)why.push(worst.n);
+  const fam=new Set();keys.forEach(k=>{const p=prof(sel[k]);if(p.cat==='C')fam.add(Math.round(p.h/45)%8)});
+  if(fam.size>2){pen+=12*(fam.size-2);why.push('ألوان واضحة كتير في طقم واحد')}
+  const fs=keys.map(k=>FORM[sel[k].occ]).filter(v=>v!==undefined),sp=fs.length?Math.max(...fs)-Math.min(...fs):0;
+  if(sp>=3){pen+=30;why.push('قطع رسمية مع رياضية')}else if(sp===2){pen+=15;why.push('مناسبات مختلفة في الطقم')}
+  if(keys.filter(k=>(sel[k].pattern||'سادة')!=='سادة').length>=2){pen+=15;why.push('نقشتين مع بعض')}
+  if(keys.some(k=>sel[k].season==='صيف')&&keys.some(k=>sel[k].season==='شتا')){pen+=20;why.push('قطع من موسمين مختلفين')}
+  if(recent){const n=keys.filter(k=>recent.has(sel[k].id)).length;if(n){pen+=8*n;why.push('فيه قطع لبستها الأسبوع ده')}}
+  score=Math.max(0,Math.min(100,score-pen));
+  return{score:Math.round(score),note:why[0]||best.n,ok:!why.length};
+}
+function suggest(n){
+  const by=t=>items.filter(i=>i.type===t),T=by('top'),B=by('bottom'),S=by('shoes'),O=by('outer');
+  if(!T.length||!B.length||!S.length)return null;
+  const rc=recentItems(),all=[];
+  for(const t of T)for(const b of B)for(const s of S){
+    const r=outfitScore({top:t,bottom:b,shoes:s},rc);all.push({sel:{top:t,bottom:b,shoes:s},...r,rk:r.score+Math.random()*4});
+  }
+  all.sort((x,y)=>y.rk-x.rk);
+  const head=all.slice(0,30);
+  if(O.length)head.forEach(c=>{
+    let bo=null,bs=c.score;
+    for(const o of O){const r=outfitScore({...c.sel,outer:o},rc);if(r.score>bs+2){bs=r.score;bo=o;c.note=r.note}}
+    if(bo){c.sel.outer=bo;c.score=bs;c.rk=bs+Math.random()*4}
+  });
+  head.sort((x,y)=>y.rk-x.rk);
+  const out=[],ut={},ub={};
+  for(const c of head){
+    if(out.length>=n)break;
+    if((ut[c.sel.top.id]||0)>=2||(ub[c.sel.bottom.id]||0)>=2)continue;
+    ut[c.sel.top.id]=(ut[c.sel.top.id]||0)+1;ub[c.sel.bottom.id]=(ub[c.sel.bottom.id]||0)+1;out.push(c);
+  }
+  return out;
 }
 
 /* ---------- add item ---------- */
-let origCanvas=null,origURL=null,cutCanvas=null,cutURL=null,cutOn=false,curType='top',busyT;
+let origCanvas=null,origURL=null,isCut=false,curType='top';
 function paintStage(){
   const s=$('#stage');
   if(!origURL){
-    s.innerHTML=`<div class="pickrow"><button id="pCam">${ic('cam')}<span>كاميرا</span></button><button id="pGal">${ic('img')}<span>المعرض</span></button></div>`;
-    $('#pCam').onclick=()=>choose('camera');$('#pGal').onclick=()=>choose('gallery');
+    s.innerHTML=`<div class="pickrow"><button id="pCam">${ic('cam')}<span>كاميرا</span></button><button id="pGal">${ic('img')}<span>المعرض</span></button><button id="pFile">${ic('file')}<span>ملف PNG</span></button></div>`;
+    $('#pCam').onclick=()=>choose('camera');$('#pGal').onclick=()=>choose('gallery');$('#pFile').onclick=()=>choose('file');
     $('#photoTools').classList.add('hide');
   }else{
-    s.innerHTML=`<img src="${cutOn&&cutURL?cutURL:origURL}" alt="">`;
+    s.innerHTML=`<img src="${origURL}" alt="" style="cursor:crosshair">`;
     $('#photoTools').classList.remove('hide');
   }
-  $('#cutSw').classList.toggle('on',cutOn);
-  $('#tol').classList.toggle('show',cutOn);
-  $('#cutHint').classList.toggle('hide',!cutOn);
 }
+function setColor(hx){$('#color').value=hx;$('#cname').textContent=cname(hx)}
+$('#color').oninput=()=>setColor($('#color').value);
+$('#stage').onclick=e=>{
+  const im=e.target.closest('img');if(!im||!origCanvas)return;
+  const r=im.getBoundingClientRect(),nw=origCanvas.width,nh=origCanvas.height,k=Math.min(r.width/nw,r.height/nh);
+  const x=Math.round((e.clientX-r.left-(r.width-nw*k)/2)/k),y=Math.round((e.clientY-r.top-(r.height-nh*k)/2)/k);
+  if(x<0||y<0||x>=nw||y>=nh)return;
+  const d=origCanvas.getContext('2d',{willReadFrequently:true}).getImageData(Math.max(0,x-3),Math.max(0,y-3),7,7).data;
+  let R=0,G=0,B=0,n=0;for(let i=0;i<d.length;i+=4)if(d[i+3]>200){R+=d[i];G+=d[i+1];B+=d[i+2];n++}
+  if(n){setColor(hex2(R/n,G/n,B/n));toast('اتاخد اللون: '+cname($('#color').value))}
+};
 function newItem(){
-  origCanvas=origURL=cutCanvas=cutURL=null;cutOn=false;curType='top';
-  $('#name').value='';$('#color').value='#27407a';
+  origCanvas=origURL=null;isCut=false;curType='top';
+  $('#name').value='';$('#pattern').value='سادة';setColor('#27407a');
   drawTypeSeg();paintStage();sheet('form');
 }
 function drawTypeSeg(){
@@ -449,47 +617,27 @@ async function choose(src){
   const url=await getPhoto(src);if(!url)return;
   try{
     origCanvas=await loadCanvas(url,900);
-    origURL=origCanvas.toDataURL('image/jpeg',.85);
-    cutCanvas=cutURL=null;cutOn=false;
-    const col=avgColor(origCanvas);if(col)$('#color').value=col;
+    isCut=hasAlpha(origCanvas);
+    origURL=isCut?origCanvas.toDataURL('image/png'):origCanvas.toDataURL('image/jpeg',.85);
+    const col=domColor(origCanvas);if(col)setColor(col);
     paintStage();
   }catch(e){toast('الصورة دي ماتفتحتش. جرّب صورة تانية.')}
 }
-$('#retake').onclick=()=>{origURL=null;origCanvas=null;cutOn=false;cutURL=cutCanvas=null;paintStage()};
-function runCut(){
-  if(!origCanvas)return;
-  $('#stage').classList.add('busy');
-  setTimeout(()=>{
-    const out=cutout(origCanvas,+$('#tolR').value);
-    $('#stage').classList.remove('busy');
-    if(!out){
-      cutOn=false;cutCanvas=cutURL=null;paintStage();
-      toast('ماقدرتش أفصل القطعة. صوّرها على خلفية سادة أو غيّر الحساسية.');return;
-    }
-    cutCanvas=out;cutURL=out.toDataURL('image/png');
-    const col=avgColor(out);if(col)$('#color').value=col;
-    paintStage();
-  },40);
-}
-$('#cutSw').onclick=()=>{
-  cutOn=!cutOn;
-  if(cutOn&&!cutURL){paintStage();runCut()}else paintStage();
-};
-$('#tolR').oninput=()=>{clearTimeout(busyT);busyT=setTimeout(runCut,200)};
+$('#retake').onclick=()=>{origURL=null;origCanvas=null;isCut=false;paintStage()};
 $('#saveItem').onclick=async()=>{
   if(!origURL){toast('اختار صورة الأول');return}
-  const useCut=cutOn&&cutURL;
-  await put('items',{name:$('#name').value.trim(),type:curType,color:$('#color').value,season:$('#season').value,occ:$('#occ').value,img:useCut?cutURL:origURL,cut:!!useCut,added:Date.now()});
+  await put('items',{name:$('#name').value.trim(),type:curType,color:$('#color').value,season:$('#season').value,occ:$('#occ').value,pattern:$('#pattern').value,img:origURL,cut:isCut,added:Date.now()});
   items=await all('items');sheet(null);filter='all';renderWardrobe();toast('اتضافت القطعة');
 };
 
 /* ---------- mix ---------- */
+const curSel=()=>{const s={};SLOTS.forEach(([t])=>{const i=byId(pick[t]);if(i)s[t]=i});return s};
 function renderMix(){
   $('#slots').innerHTML=SLOTS.map(([t,l])=>{
     const list=items.filter(i=>i.type===t),cur=byId(pick[t]);
     return `<div class="slot" data-t="${t}"><button class="arr" data-d="1" aria-label="التالي">${ic('r')}</button>
       <div class="pic">${cur?imgTag(cur):`<div class="ph">${list.length?'اختار':'مفيش'}</div>`}</div>
-      <div class="tx"><span class="sub">${l}</span><b>${cur?esc(cur.name||'بدون اسم'):(list.length?'اضغط السهم':'ضيف '+l+' من الدولاب')}</b></div>
+      <div class="tx"><span class="sub">${l}${cur?' · '+prof(cur).name:''}</span><b>${cur?esc(cur.name||'بدون اسم'):(list.length?'اضغط السهم':'ضيف '+l+' من الدولاب')}</b>${list.length?`<button class="best" data-b="${t}">الأنسب للباقي</button>`:''}</div>
       <button class="arr" data-d="-1" aria-label="السابق">${ic('l')}</button></div>`}).join('');
   $('#slots').querySelectorAll('.arr').forEach(b=>b.onclick=()=>{
     const t=b.closest('.slot').dataset.t,opt=SLOTS.find(s=>s[0]===t)[2],list=items.filter(i=>i.type===t).map(i=>i.id);
@@ -501,6 +649,19 @@ function renderMix(){
     if(list[ix]===null)delete pick[t];else pick[t]=list[ix];
     renderMix();
   });
+  $('#slots').querySelectorAll('.best').forEach(b=>b.onclick=()=>bestFor(b.dataset.b));
+  const r=outfitScore(curSel());
+  const sc=$('#score');
+  if(!r){sc.innerHTML='<span class="sub">اختار قطعتين أو أكتر وهقيّم لك تناسق الألوان.</span>'}
+  else sc.innerHTML=`<div class="sh"><b>تناسق الطقم</b><span class="pill ${r.score>=75?'g':r.score>=55?'m':'b'}">${r.score}%</span></div><div class="bar2"><i style="width:${r.score}%"></i></div><span class="sub">${esc(r.note)}</span>`;
+}
+function bestFor(t){
+  const sel=curSel();delete sel[t];
+  if(Object.keys(sel).length<1){toast('اختار قطعة تانية الأول');return}
+  const rc=recentItems();let best=null,bs=-1;
+  for(const c of items.filter(i=>i.type===t)){const r=outfitScore({...sel,[t]:c},rc);if(r&&r.score>bs){bs=r.score;best=c}}
+  if(!best)return;
+  pick[t]=best.id;renderMix();toast('الأنسب: '+(best.name||'بدون اسم')+' ('+bs+'%)');
 }
 $('#shuffle').onclick=()=>{
   SLOTS.forEach(([t,,opt])=>{const l=items.filter(i=>i.type===t);
@@ -509,14 +670,37 @@ $('#shuffle').onclick=()=>{
   renderMix();
 };
 $('#saveOutfit').onclick=()=>{
-  if(SLOTS.map(([t])=>pick[t]).filter(Boolean).length<2){toast('اختار قطعتين على الأقل');return}
+  if(Object.keys(curSel()).length<2){toast('اختار قطعتين على الأقل');return}
   $('#oName').value='';sheet('name');
 };
 $('#oSave').onclick=async()=>{
   const ids=SLOTS.map(([t])=>pick[t]).filter(Boolean);
   await put('outfits',{name:$('#oName').value.trim(),ids,added:Date.now()});
+  learn(curSel(),1);
   outfits=await all('outfits');sheet(null);toast('اتحفظ الطقم');
 };
+
+/* ---------- recommendations ---------- */
+let recs=[];
+function openRecs(){
+  const r=suggest(5);
+  if(!r){toast('محتاج على الأقل قميص وبنطلون وجزمة في الدولاب');return}
+  recs=r;
+  $('#recList').innerHTML=recs.map((c,i)=>`<div class="rc" data-i="${i}"><div class="ims">${['top','bottom','shoes','outer'].filter(k=>c.sel[k]).map(k=>`<div class="pic">${imgTag(c.sel[k])}</div>`).join('')}</div>
+    <div class="rm"><span class="pill ${c.score>=75?'g':c.score>=55?'m':'b'}">${c.score}%</span><span class="sub">${esc(c.note)}</span></div>
+    <div class="rb"><button data-a="use" class="p">استخدم</button><button data-a="up">يعجبني</button><button data-a="down">مش عاجبني</button></div></div>`).join('');
+  $('#recList').querySelectorAll('.rc').forEach(card=>{
+    const c=recs[+card.dataset.i];
+    card.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+      const a=b.dataset.a;
+      if(a==='use'){pick={};for(const k of Object.keys(c.sel))pick[k]=c.sel[k].id;sheet(null);tab('mix')}
+      else{learn(c.sel,a==='up'?1:-1);card.classList.add(a==='up'?'liked':'disliked');card.querySelectorAll('.rb button:not(.p)').forEach(x=>x.disabled=true);toast(a==='up'?'تمام، هرشّح لك أطقم زي دي أكتر':'تمام، هقلل الألوان دي مع بعض')}
+    });
+  });
+  sheet('rec');
+}
+$('#recBtn').onclick=openRecs;
+$('#recMore').onclick=openRecs;
 
 /* ---------- outfits ---------- */
 function renderOutfits(){
