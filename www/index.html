@@ -3,152 +3,290 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#6d4aff">
+<meta name="theme-color" content="#27407a">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
 <title>Styly</title>
 <style>
-:root{--p:#6d4aff;--bg:#f6f5fb;--card:#fff;--tx:#1d1b2e;--mut:#8a87a0;--bd:#e6e4f2;--dan:#e5484d}
-@media(prefers-color-scheme:dark){:root{--bg:#14131f;--card:#1e1d2d;--tx:#f1f0fa;--mut:#9a97b3;--bd:#2d2c42}}
+:root{
+  --bg:#eceff1;--sf:#fff;--tile:#e0e5e9;--ink:#14181f;--mut:#667080;--ln:#d3d9df;
+  --den:#27407a;--onden:#fff;--tape:#f4c20d;--dan:#b3261e;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0f1218;--sf:#171b24;--tile:#1f2530;--ink:#eef1f5;--mut:#8b94a3;--ln:#272d39;
+  --den:#86a2ee;--onden:#0f1218;--dan:#ff8a80;
+}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:84px}
-header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 8px;padding-top:max(14px,env(safe-area-inset-top))}
-h1{margin:0 0 10px;font-size:22px}
-.tabs{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:12px;border:1px solid var(--bd)}
-.tabs button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font:inherit;color:var(--mut);font-weight:600}
-.tabs button.on{background:var(--p);color:#fff}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 4px;scrollbar-width:none}
-.chip{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:6px 12px;border-radius:99px;font:inherit;font-size:13px}
-.chip.on{background:var(--p);border-color:var(--p);color:#fff}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px 16px}
-.item{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
-.item img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#0001}
-.item .m{padding:8px 10px;font-size:13px}
-.item .m b{display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid #0003;vertical-align:middle;margin-inline-end:4px}
-.empty{text-align:center;color:var(--mut);padding:50px 20px;line-height:1.8}
-.fab{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));inset-inline-start:20px;width:58px;height:58px;border-radius:50%;border:0;background:var(--p);color:#fff;font-size:30px;box-shadow:0 6px 18px #6d4aff66;z-index:6}
-.sheet-bg{position:fixed;inset:0;background:#0007;z-index:20;display:none;align-items:flex-end}
-.sheet-bg.show{display:flex}
-.sheet{background:var(--card);width:100%;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px max(18px,env(safe-area-inset-bottom))}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,"Segoe UI",Roboto,"Noto Sans Arabic",system-ui,sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer}
+svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* header + tape */
+.top{position:sticky;top:0;z-index:10;background:var(--bg);padding-top:env(safe-area-inset-top)}
+.top .row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px}
+.logo{margin:0;font-size:27px;font-weight:800;letter-spacing:-.045em;line-height:1;direction:ltr}
+.tape{height:15px;background:var(--tape);position:relative;overflow:hidden}
+.tape::before,.tape::after{content:"";position:absolute;inset-inline:0;top:0;background-repeat:repeat-x}
+.tape::before{height:6px;background-image:linear-gradient(90deg,#14181f 1px,transparent 1px);background-size:6px 100%;opacity:.55}
+.tape::after{height:11px;background-image:linear-gradient(90deg,#14181f 1.5px,transparent 1.5px);background-size:30px 100%;opacity:.8}
+.add{display:none;align-items:center;gap:6px;border:0;background:var(--den);color:var(--onden);padding:9px 14px 9px 16px;border-radius:99px;font-weight:700;font-size:14px}
+.add.show{display:flex}
+.add svg{width:18px;height:18px;stroke-width:2.2}
+
+/* bottom nav */
+.bar{position:fixed;inset-inline:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(4,1fr);background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom)}
+.bar button{position:relative;border:0;background:none;padding:10px 0 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;color:var(--mut)}
+.bar button svg{width:23px;height:23px}
+.bar button.on{color:var(--den);font-weight:700}
+.bar button.on::before{content:"";position:absolute;top:-1px;width:26px;height:3px;background:var(--tape);border-radius:0 0 3px 3px}
+
+/* wardrobe */
+.filters{display:flex;gap:20px;overflow-x:auto;padding:4px 16px 0;border-bottom:1px solid var(--ln);scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:none;border:0;background:none;padding:10px 0;color:var(--mut);font-size:14.5px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.filters button.on{color:var(--ink);font-weight:700;border-color:var(--den)}
+.filters small{color:var(--mut);font-weight:400;margin-inline-start:4px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 12px;padding:16px}
+.tile{border:0;background:none;padding:0;text-align:start;display:block;width:100%}
+.pic{background:var(--tile);border-radius:6px;aspect-ratio:4/5;overflow:hidden;display:flex}
+.pic img{width:100%;height:100%;object-fit:cover}
+.pic img.cut{object-fit:contain;padding:9%}
+.cap{display:flex;align-items:center;gap:8px;margin-top:8px}
+.cap b{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap i{flex:none;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px #0003}
+.sub{font-size:12.5px;color:var(--mut)}
+.empty{padding:56px 28px;text-align:center}
+.empty h3{margin:0 0 6px;font-size:18px}
+.empty p{margin:0 auto 18px;color:var(--mut);max-width:26ch}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 16px;border-radius:12px;border:1.5px solid var(--den);background:var(--den);color:var(--onden);font-weight:700}
+.btn.ghost{background:none;color:var(--den)}
+.btn.dan{background:none;border-color:var(--dan);color:var(--dan)}
+.btn svg{width:20px;height:20px}
+.btns{display:grid;gap:10px;padding:0 16px}
+.btns.two{grid-template-columns:1fr 1fr}
+
+/* mix */
+.slot{display:flex;align-items:center;gap:6px;padding:12px 10px 12px 16px;border-bottom:1px solid var(--ln)}
+.arr{flex:none;width:40px;height:72px;border:0;background:none;color:var(--mut);display:grid;place-items:center}
+.arr svg{width:24px;height:24px}
+.slot .pic{width:78px;aspect-ratio:4/5;flex:none}
+.slot .tx{flex:1;min-width:0}
+.slot .tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .ph{width:100%;display:grid;place-items:center;color:var(--mut);font-size:12px;text-align:center;padding:4px}
+.mixact{padding:18px 16px 0;display:grid;gap:10px;grid-template-columns:1fr 1.4fr}
+
+/* outfits */
+.out{padding:14px 16px;border-bottom:1px solid var(--ln)}
+.out .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.out .hd b{font-size:15px}
+.out .hd button{border:0;background:none;color:var(--dan);font-size:13.5px;padding:2px 0}
+.ims{display:flex;gap:8px}
+.ims .pic{flex:1;min-width:0}
+.pk{width:100%;border:0;background:none;text-align:start}
+.pk.sel .pic{outline:2.5px solid var(--den);outline-offset:-2.5px}
+
+/* plan */
+.wk{display:flex;align-items:center;justify-content:space-between;padding:10px 8px 6px}
+.wk button{width:44px;height:44px;border:0;background:none;display:grid;place-items:center}
+.wk svg{width:22px;height:22px}
+.wk b{font-size:15px}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:6px 10px 14px}
+.dy{border:0;background:none;border-radius:10px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--mut);font-size:11.5px}
+.dy .n{font-size:18px;font-weight:700;color:var(--ink);line-height:1.2}
+.dy .t{width:30px;height:38px;border-radius:4px;background:var(--tile);overflow:hidden;margin-top:4px;display:flex}
+.dy .t img{width:100%;height:100%;object-fit:cover}
+.dy .t img.cut{object-fit:contain}
+.dy.today .n::after{content:"";display:block;height:3px;border-radius:2px;background:var(--tape);margin-top:1px}
+.dy.sel{background:var(--den);color:var(--onden)}
+.dy.sel .n{color:var(--onden)}
+.detail{padding:6px 16px 0}
+.detail h3{margin:0 0 2px;font-size:19px}
+.detail .ims{margin:14px 0 12px}
+.detail .ims .pic{aspect-ratio:3/4}
+.noday{background:var(--tile);border-radius:8px;padding:26px 16px;text-align:center;color:var(--mut);margin:14px 0 12px}
+
+/* sheet */
+.sbg{position:fixed;inset:0;z-index:30;background:#0008;display:none;align-items:flex-end}
+.sbg.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-height:94vh;overflow:auto;border-radius:18px 18px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--ln);margin:0 auto 12px}
 .sheet h2{margin:0 0 12px;font-size:18px}
-label{display:block;font-size:13px;color:var(--mut);margin:12px 0 5px}
-input[type=text],select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
-.row{display:flex;gap:10px}.row>div{flex:1}
-input[type=color]{width:100%;height:44px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);padding:3px}
-.photo{width:100%;aspect-ratio:4/3;border:2px dashed var(--bd);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--mut);overflow:hidden;background:var(--bg);text-align:center}
-.photo img{width:100%;height:100%;object-fit:cover}
-.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--p);color:#fff;font:inherit;font-weight:700;margin-top:16px}
-.btn.sec{background:var(--bg);color:var(--tx);border:1px solid var(--bd);margin-top:8px}
-.btn.dan{background:var(--dan)}
-.slot{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin:10px 16px;padding:8px;display:flex;align-items:center;gap:8px}
-.slot .arr{width:38px;height:60px;border:0;background:var(--bg);border-radius:10px;font-size:20px;color:var(--tx)}
-.slot .v{flex:1;display:flex;align-items:center;gap:10px;min-height:84px}
-.slot .v img{width:84px;height:84px;object-fit:cover;border-radius:10px}
-.slot .v .none{color:var(--mut);font-size:13px}
-.slot small{color:var(--mut);display:block;font-size:12px}
-.acts{padding:4px 16px;display:flex;gap:8px}.acts .btn{margin-top:6px}
-.outfit{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin:10px 16px;padding:10px}
-.outfit .ims{display:flex;gap:6px}.outfit .ims img{flex:1;min-width:0;aspect-ratio:1;object-fit:cover;border-radius:8px}
-.outfit .t{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:600}
-.outfit .t button{border:0;background:none;color:var(--dan);font:inherit}
-.wk{display:flex;align-items:center;justify-content:space-between;padding:6px 16px}
-.wk button{width:40px;height:40px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:20px}
-.day{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:14px;margin:8px 16px;padding:10px}
-.day.today{border-color:var(--p);box-shadow:0 0 0 1px var(--p)}
-.day .dn{width:64px;text-align:center}.day .dn b{display:block}.day .dn small{color:var(--mut)}
-.day .dc{flex:1;min-width:0}.day .dc small{color:var(--mut);display:block;margin-top:4px}
-.day .none{color:var(--mut);font-size:14px}
-.day .ims{display:flex;gap:5px}.day .ims img{width:48px;height:48px;object-fit:cover;border-radius:8px}
-.pk{margin:8px 0!important}.pk.sel{border-color:var(--p);box-shadow:0 0 0 1px var(--p)}
+.stage{position:relative;background:var(--tile);border-radius:10px;aspect-ratio:1;max-height:44vh;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.stage img{width:100%;height:100%;object-fit:contain}
+.stage.busy::after{content:"جاري المعالجة…";position:absolute;inset:0;display:grid;place-items:center;background:#0006;color:#fff;font-weight:700}
+.pickrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;padding:18px}
+.pickrow button{border:1.5px solid var(--ln);background:var(--sf);border-radius:12px;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:600}
+.pickrow svg{width:28px;height:28px;color:var(--den)}
+.tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 0}
+.sw{display:flex;align-items:center;gap:10px;border:0;background:none;padding:6px 0;font-weight:600}
+.sw .k{width:42px;height:24px;border-radius:12px;background:var(--ln);position:relative;transition:background .15s}
+.sw .k::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:inset-inline-start .15s}
+.sw.on .k{background:var(--den)}
+.sw.on .k::after{inset-inline-start:21px}
+.lnk{border:0;background:none;color:var(--den);font-weight:600;padding:6px 0}
+.tol{display:none;align-items:center;gap:10px;margin-top:4px;color:var(--mut);font-size:13px}
+.tol.show{display:flex}
+.tol input{flex:1;accent-color:var(--den)}
+.hint{font-size:12.5px;color:var(--mut);margin:4px 0 0}
+label.f{display:block;font-size:13px;color:var(--mut);margin:14px 0 6px}
+input[type=text],select{width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--ln);background:var(--sf);color:var(--ink);font:inherit}
+input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-radius:10px;background:var(--sf);padding:3px}
+.seg{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;border:1.5px solid var(--ln);background:var(--sf);border-radius:99px;padding:8px 14px;font-size:14px}
+.seg button.on{background:var(--den);border-color:var(--den);color:var(--onden);font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sheet .btn{margin-top:10px}
+.sheet .gap{height:6px}
+.toast{position:fixed;inset-inline:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:40;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:10px;font-size:14px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:none}
 .hide{display:none!important}
+:focus-visible{outline:2px solid var(--den);outline-offset:2px}
 </style>
 </head>
 <body>
-<header>
-  <h1>👔 Styly</h1>
-  <div class="tabs">
-    <button id="t-wardrobe" class="on">الدولاب</button>
-    <button id="t-mix">نسّق</button>
-    <button id="t-outfits">أطقمي</button>
-    <button id="t-plan">📅 الأسبوع</button>
+
+<header class="top">
+  <div class="row">
+    <h1 class="logo">Styly</h1>
+    <button class="add" id="addBtn"></button>
   </div>
+  <div class="tape" aria-hidden="true"></div>
 </header>
 
 <section id="v-wardrobe">
-  <div class="chips" id="chips"></div>
+  <div class="filters" id="filters"></div>
   <div class="grid" id="grid"></div>
-  <div class="empty hide" id="empty">الدولاب فاضي 😅<br>دوس على + وصوّر أول قطعة</div>
+  <div class="empty hide" id="empty">
+    <h3>الدولاب فاضي</h3>
+    <p>صوّر أول قطعة وهتظهر هنا.</p>
+    <div class="btns"><button class="btn" id="emptyAdd">إضافة قطعة</button></div>
+  </div>
 </section>
 
 <section id="v-mix" class="hide">
   <div id="slots"></div>
-  <div class="acts">
-    <button class="btn" id="shuffle">🎲 عشوائي</button>
-    <button class="btn sec" id="save">💾 احفظ الطقم</button>
+  <div class="mixact">
+    <button class="btn ghost" id="shuffle"></button>
+    <button class="btn" id="saveOutfit">حفظ الطقم</button>
   </div>
 </section>
 
 <section id="v-outfits" class="hide">
   <div id="outfits"></div>
-  <div class="empty hide" id="empty2">مفيش أطقم محفوظة لسه</div>
+  <div class="empty hide" id="empty2">
+    <h3>مفيش أطقم محفوظة</h3>
+    <p>ركّب طقم من تبويب "تركيب" واحفظه.</p>
+  </div>
 </section>
 
 <section id="v-plan" class="hide">
   <div class="wk">
-    <button id="nextW">›</button>
+    <button id="prevW" aria-label="الأسبوع اللي فات"></button>
     <b id="weekLbl"></b>
-    <button id="prevW">‹</button>
+    <button id="nextW" aria-label="الأسبوع الجاي"></button>
   </div>
-  <div id="days"></div>
-  <div class="acts"><button class="btn sec" id="fillWeek">🎲 املا الأيام الفاضية عشوائي</button></div>
+  <div class="strip" id="strip"></div>
+  <div class="detail" id="detail"></div>
+  <div class="btns" style="margin-top:6px"><button class="btn ghost" id="fillWeek">وزّع أطقم على الأيام الفاضية</button></div>
 </section>
 
-<button class="fab" id="fab" aria-label="إضافة قطعة">+</button>
+<nav class="bar" id="bar">
+  <button id="t-wardrobe"></button>
+  <button id="t-mix"></button>
+  <button id="t-outfits"></button>
+  <button id="t-plan"></button>
+</nav>
 
-<div class="sheet-bg" id="sheetBg">
-  <div class="sheet" id="sheet">
-    <h2 id="sheetTitle">قطعة جديدة</h2>
-    <div id="form">
-      <label class="photo" for="file" id="photo">📷 دوس عشان تصوّر أو تختار صورة</label>
-      <input type="file" id="file" accept="image/*" hidden>
-      <label>الاسم</label>
+<div class="sbg" id="sbg">
+  <div class="sheet" role="dialog">
+    <div class="grab"></div>
+
+    <div id="m-form" class="hide">
+      <h2>قطعة جديدة</h2>
+      <div class="stage" id="stage"></div>
+      <div id="photoTools" class="hide">
+        <div class="tools">
+          <button class="sw" id="cutSw"><span class="k"></span>إزالة الخلفية</button>
+          <button class="lnk" id="retake">صورة تانية</button>
+        </div>
+        <div class="tol" id="tol"><span>حساسية</span><input type="range" id="tolR" min="12" max="90" value="34"></div>
+        <p class="hint hide" id="cutHint">لو جزء من القطعة اتمسح قلّل الحساسية، ولو فضلت خلفية زوّدها.</p>
+      </div>
+      <label class="f">الاسم</label>
       <input type="text" id="name" placeholder="مثال: قميص أبيض">
-      <div class="row">
-        <div><label>النوع</label><select id="type"></select></div>
-        <div><label>اللون</label><input type="color" id="color" value="#2b3a67"></div>
-      </div>
-      <div class="row">
-        <div><label>الموسم</label>
+      <label class="f">النوع</label>
+      <div class="seg" id="typeSeg"></div>
+      <div class="two">
+        <div><label class="f">اللون</label><input type="color" id="color" value="#27407a"></div>
+        <div><label class="f">الموسم</label>
           <select id="season"><option>كل السنة</option><option>صيف</option><option>شتا</option><option>مواسم انتقالية</option></select></div>
-        <div><label>المناسبة</label>
-          <select id="occ"><option>كاجوال</option><option>رسمي</option><option>رياضي</option><option>خروجة</option></select></div>
       </div>
-      <button class="btn" id="saveItem">حفظ</button>
-      <button class="btn sec" id="cancel">إلغاء</button>
+      <label class="f">المناسبة</label>
+      <select id="occ"><option>كاجوال</option><option>رسمي</option><option>رياضي</option><option>خروجة</option></select>
+      <button class="btn" id="saveItem">حفظ القطعة</button>
+      <button class="btn ghost" data-close>إلغاء</button>
     </div>
-    <div id="detail" class="hide">
-      <img id="dImg" style="width:100%;border-radius:14px">
-      <p id="dInfo" style="line-height:1.9"></p>
-      <button class="btn dan" id="del">🗑 حذف القطعة</button>
-      <button class="btn sec" id="close">إغلاق</button>
+
+    <div id="m-detail" class="hide">
+      <div class="stage" id="dStage"></div>
+      <h2 id="dName" style="margin-top:14px"></h2>
+      <p class="sub" id="dInfo" style="margin:-6px 0 0"></p>
+      <button class="btn dan" id="del">حذف القطعة</button>
+      <button class="btn ghost" data-close>إغلاق</button>
     </div>
-    <div id="pick" class="hide">
+
+    <div id="m-pick" class="hide">
+      <h2 id="pickTitle"></h2>
       <div id="pickList"></div>
-      <button class="btn dan hide" id="clearDay">إزالة الطقم من اليوم</button>
-      <button class="btn sec" id="pickClose">إغلاق</button>
+      <button class="btn dan hide" id="clearDay">شيل الطقم من اليوم</button>
+      <button class="btn ghost" data-close>إغلاق</button>
+    </div>
+
+    <div id="m-name" class="hide">
+      <h2>اسم الطقم</h2>
+      <input type="text" id="oName" placeholder="مثال: شغل يوم الأحد">
+      <button class="btn" id="oSave">حفظ</button>
+      <button class="btn ghost" data-close>إلغاء</button>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept="image/*" hidden>
+
 <script>
-const TYPES={top:'🧥 قميص/تيشيرت',bottom:'👖 بنطلون/شورت',outer:'🧥 جاكيت',shoes:'👟 جزمة',acc:'⌚ إكسسوار'};
-const SLOTS=[['top','فوق'],['bottom','تحت'],['outer','جاكيت (اختياري)'],['shoes','جزمة']];
-let items=[],outfits=[],filter='all',pick={},curImg=null,openId=null;
+/* ---------- constants ---------- */
+const TYPES={top:'قميص / تيشيرت',bottom:'بنطلون / شورت',outer:'جاكيت',shoes:'جزمة',acc:'إكسسوار'};
+const SLOTS=[['top','فوق',false],['bottom','تحت',false],['outer','جاكيت',true],['shoes','جزمة',false]];
+const DAYN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const DAYS=['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+const P={
+  grid:'<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>',
+  mix:'<path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
+  mark:'<path d="M18 21l-6-4.5L6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2Z"/>',
+  cal:'<rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cam:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.8"/>',
+  img:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/>',
+  shuf:'<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+  r:'<path d="m9 6 6 6-6 6"/>',
+  l:'<path d="m15 6-6 6 6 6"/>'
+};
+const ic=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
 const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+let items=[],outfits=[],plan=[],filter='all',pick={},openId=null;
 
 /* ---------- IndexedDB ---------- */
 let db;
-const open=()=>new Promise((res,rej)=>{
+const openDB=()=>new Promise((res,rej)=>{
   const r=indexedDB.open('wardrobe',2);
   r.onupgradeneeded=()=>{const d=r.result;
     if(!d.objectStoreNames.contains('items'))d.createObjectStore('items',{keyPath:'id',autoIncrement:true});
@@ -156,161 +294,285 @@ const open=()=>new Promise((res,rej)=>{
     if(!d.objectStoreNames.contains('plan'))d.createObjectStore('plan',{keyPath:'date'});};
   r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error);
 });
-const tx=(s,m,f)=>new Promise((res,rej)=>{const t=db.transaction(s,m),o=t.objectStore(s),q=f(o);t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)});
+const tx=(s,m,f)=>new Promise((res,rej)=>{const t=db.transaction(s,m),q=f(t.objectStore(s));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)});
 const all=s=>tx(s,'readonly',o=>o.getAll());
 const put=(s,v)=>tx(s,'readwrite',o=>o.put(v));
 const rm=(s,id)=>tx(s,'readwrite',o=>o.delete(id));
 
-/* ---------- Image compress ---------- */
-const compress=f=>new Promise(res=>{
-  const img=new Image(),u=URL.createObjectURL(f);
-  img.onload=()=>{const M=800,k=Math.min(1,M/Math.max(img.width,img.height));
-    const c=document.createElement('canvas');c.width=img.width*k;c.height=img.height*k;
-    c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.8))};
-  img.src=u;
-});
+/* ---------- ui helpers ---------- */
+let tt;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
+const imgTag=i=>`<img class="${i.cut?'cut':''}" src="${i.img}" alt="">`;
+const byId=id=>items.find(i=>i.id===id);
+const outfitItems=o=>o.ids.map(byId).filter(Boolean);
+function sheet(mode){
+  $('#sbg').classList.toggle('show',!!mode);
+  ['form','detail','pick','name'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.target.id==='sbg')sheet(null)});
 
-/* ---------- Tabs ---------- */
-const TABS=['wardrobe','mix','outfits','plan'];
+/* ---------- tabs ---------- */
+const TABS=[['wardrobe','الدولاب','grid'],['mix','تركيب','mix'],['outfits','أطقمي','mark'],['plan','الأسبوع','cal']];
+TABS.forEach(([k,l,i])=>{const b=$('#t-'+k);b.innerHTML=ic(i)+'<span>'+l+'</span>';b.onclick=()=>tab(k)});
+$('#addBtn').innerHTML=ic('plus')+'<span>قطعة</span>';
+$('#shuffle').innerHTML=ic('shuf')+'<span>عشوائي</span>';
+$('#prevW').innerHTML=ic('r');$('#nextW').innerHTML=ic('l');
 function tab(n){
-  TABS.forEach(k=>{
-    $('#v-'+k).classList.toggle('hide',k!==n);$('#t-'+k).classList.toggle('on',k===n);});
-  $('#fab').classList.toggle('hide',n!=='wardrobe');
-  if(n==='mix')renderMix();if(n==='outfits')renderOutfits();if(n==='plan')renderPlan();
+  TABS.forEach(([k])=>{$('#v-'+k).classList.toggle('hide',k!==n);$('#t-'+k).classList.toggle('on',k===n)});
+  $('#addBtn').classList.toggle('show',n==='wardrobe');
+  window.scrollTo(0,0);
+  if(n==='wardrobe')renderWardrobe();if(n==='mix')renderMix();if(n==='outfits')renderOutfits();if(n==='plan')renderPlan();
 }
-TABS.forEach(k=>$('#t-'+k).onclick=()=>tab(k));
 
-/* ---------- Wardrobe ---------- */
-function renderChips(){
-  const opts=[['all','الكل'],...Object.entries(TYPES)];
-  $('#chips').innerHTML=opts.map(([k,l])=>`<button class="chip ${filter===k?'on':''}" data-k="${k}">${l}</button>`).join('');
-  $('#chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.k;renderWardrobe()});
-}
+/* ---------- wardrobe ---------- */
 function renderWardrobe(){
-  renderChips();
-  const list=items.filter(i=>filter==='all'||i.type===filter);
-  $('#grid').innerHTML=list.map(i=>`<div class="item" data-id="${i.id}"><img src="${i.img}"><div class="m"><b>${esc(i.name||'بدون اسم')}</b><span class="dot" style="background:${i.color}"></span>${i.occ}</div></div>`).join('');
-  $('#grid').querySelectorAll('.item').forEach(e=>e.onclick=()=>showDetail(+e.dataset.id));
-  $('#empty').classList.toggle('hide',list.length>0);
+  const cnt=k=>k==='all'?items.length:items.filter(i=>i.type===k).length;
+  $('#filters').innerHTML=[['all','الكل'],...Object.entries(TYPES)].map(([k,l])=>`<button data-k="${k}" class="${filter===k?'on':''}">${l}<small>${cnt(k)}</small></button>`).join('');
+  $('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.k;renderWardrobe()});
+  const list=items.filter(i=>filter==='all'||i.type===filter).slice().reverse();
+  $('#grid').innerHTML=list.map(i=>`<button class="tile" data-id="${i.id}"><div class="pic">${imgTag(i)}</div><div class="cap"><b>${esc(i.name||'بدون اسم')}</b><i style="background:${i.color}"></i></div><div class="sub">${esc(i.occ)} · ${esc(i.season)}</div></button>`).join('');
+  $('#grid').querySelectorAll('.tile').forEach(e=>e.onclick=()=>showDetail(+e.dataset.id));
+  $('#empty').classList.toggle('hide',items.length>0);
+  $('#filters').classList.toggle('hide',!items.length);
 }
-const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
-/* ---------- Sheet ---------- */
-const sheet=(show,mode)=>{
-  $('#sheetBg').classList.toggle('show',show);
-  ['form','detail','pick'].forEach(m=>$('#'+m).classList.toggle('hide',mode!==m));
-  if(mode)$('#sheetTitle').textContent={form:'قطعة جديدة',detail:'تفاصيل القطعة',pick:$('#sheetTitle').dataset.pick||''}[mode];
-};
-$('#type').innerHTML=Object.entries(TYPES).map(([k,l])=>`<option value="${k}">${l}</option>`).join('');
-$('#fab').onclick=()=>{curImg=null;$('#name').value='';$('#photo').innerHTML='📷 دوس عشان تصوّر أو تختار صورة';sheet(true,'form')};
-$('#cancel').onclick=()=>sheet(false);
-$('#close').onclick=()=>sheet(false);
-$('#sheetBg').onclick=e=>{if(e.target.id==='sheetBg')sheet(false)};
-$('#file').onchange=async e=>{
-  const f=e.target.files[0];if(!f)return;
-  curImg=await compress(f);$('#photo').innerHTML=`<img src="${curImg}">`;e.target.value='';
-};
-$('#saveItem').onclick=async()=>{
-  if(!curImg){alert('اختار صورة الأول');return}
-  await put('items',{name:$('#name').value.trim(),type:$('#type').value,color:$('#color').value,season:$('#season').value,occ:$('#occ').value,img:curImg,added:Date.now()});
-  items=await all('items');sheet(false);renderWardrobe();
-};
+$('#emptyAdd').onclick=()=>newItem();$('#addBtn').onclick=()=>newItem();
 function showDetail(id){
-  const i=items.find(x=>x.id===id);if(!i)return;openId=id;
-  $('#dImg').src=i.img;
-  $('#dInfo').innerHTML=`<b>${esc(i.name||'بدون اسم')}</b><br>${TYPES[i.type]} • <span class="dot" style="background:${i.color}"></span>${i.season} • ${i.occ}`;
-  sheet(true,'detail');
+  const i=byId(id);if(!i)return;openId=id;
+  $('#dStage').innerHTML=imgTag(i);
+  $('#dName').textContent=i.name||'بدون اسم';
+  $('#dInfo').textContent=TYPES[i.type]+' · '+i.season+' · '+i.occ;
+  sheet('detail');
 }
 $('#del').onclick=async()=>{
-  if(!confirm('متأكد إنك عايز تحذف القطعة؟'))return;
-  await rm('items',openId);items=await all('items');sheet(false);renderWardrobe();
+  if(!confirm('تحذف القطعة دي؟'))return;
+  await rm('items',openId);items=await all('items');
+  for(const o of outfits){const ids=o.ids.filter(x=>x!==openId);if(ids.length!==o.ids.length)await put('outfits',{...o,ids})}
+  outfits=await all('outfits');sheet(null);renderWardrobe();toast('اتحذفت القطعة');
 };
 
-/* ---------- Mix & Match ---------- */
-function renderMix(){
-  $('#slots').innerHTML=SLOTS.map(([t,l])=>{
-    const list=items.filter(i=>i.type===t),cur=list.find(i=>i.id===pick[t]);
-    return `<div class="slot" data-t="${t}"><button class="arr" data-d="1">›</button>
-      <div class="v">${cur?`<img src="${cur.img}"><div>${esc(cur.name||'بدون اسم')}<small>${l}</small></div>`:`<div class="none">${l}: ${list.length?'اضغط ‹ › للاختيار':'مفيش قطع'}</div>`}</div>
-      <button class="arr" data-d="-1">‹</button></div>`}).join('');
-  $('#slots').querySelectorAll('.arr').forEach(b=>b.onclick=()=>{
-    const t=b.closest('.slot').dataset.t,list=items.filter(i=>i.type===t);if(!list.length)return;
-    let idx=list.findIndex(i=>i.id===pick[t]);idx=(idx+ +b.dataset.d+list.length)%list.length;
-    pick[t]=list[idx].id;renderMix();
+/* ---------- photo capture ---------- */
+async function getPhoto(source){
+  const C=window.Capacitor;
+  let cam=null;
+  try{if(C&&C.isNativePlatform&&C.isNativePlatform())cam=(C.Plugins&&C.Plugins.Camera)||C.registerPlugin('Camera')}catch(e){}
+  if(cam){
+    try{
+      const r=await cam.getPhoto({quality:90,allowEditing:false,resultType:'dataUrl',source:source==='camera'?'CAMERA':'PHOTOS',correctOrientation:true,width:1280});
+      return r.dataUrl;
+    }catch(e){
+      const m=String((e&&e.message)||e);
+      if(!/cancel/i.test(m))toast('ماقدرتش أفتح '+(source==='camera'?'الكاميرا':'المعرض')+'. اتأكد إن التطبيق معاه الإذن.');
+      return null;
+    }
+  }
+  return new Promise(res=>{
+    const f=$('#file');
+    if(source==='camera')f.setAttribute('capture','environment');else f.removeAttribute('capture');
+    f.onchange=()=>{const x=f.files[0];f.value='';if(!x)return res(null);const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(x)};
+    f.click();
   });
 }
-const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+const loadCanvas=(url,max)=>new Promise((res,rej)=>{
+  const im=new Image();
+  im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=mk(Math.round(im.width*k),Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c)};
+  im.onerror=rej;im.src=url;
+});
+function avgColor(c){
+  const x=c.getContext('2d',{willReadFrequently:true}),w=c.width,h=c.height;
+  const x0=Math.round(w*.25),y0=Math.round(h*.25),ww=Math.max(1,Math.round(w*.5)),hh=Math.max(1,Math.round(h*.5));
+  const d=x.getImageData(x0,y0,ww,hh).data;let r=0,g=0,b=0,n=0;
+  for(let i=0;i<d.length;i+=16){if(d[i+3]>200){r+=d[i];g+=d[i+1];b+=d[i+2];n++}}
+  if(!n)return null;
+  return '#'+[r,g,b].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('');
+}
+
+/* ---------- background removal (offline) ---------- */
+function cutout(src,tol){
+  const k=Math.min(1,700/Math.max(src.width,src.height)),w=Math.round(src.width*k),h=Math.round(src.height*k);
+  const c=mk(w,h),x=c.getContext('2d',{willReadFrequently:true});x.drawImage(src,0,0,w,h);
+  const im=x.getImageData(0,0,w,h),d=im.data,N=w*h;
+  const R=[],G=[],B=[],add=p=>{R.push(d[p*4]);G.push(d[p*4+1]);B.push(d[p*4+2])};
+  for(let i=0;i<w;i++){add(i);add((h-1)*w+i)}for(let j=0;j<h;j++){add(j*w);add(j*w+w-1)}
+  const med=a=>a.sort((p,q)=>p-q)[a.length>>1],br=med(R),bg=med(G),bb=med(B);
+  const cap2=(tol*1.8)**2,step2=(10+tol*.15)**2;
+  const m=new Uint8Array(N),st=new Int32Array(N);let sp=0;
+  const dB=p=>{const i=p*4,a=d[i]-br,b=d[i+1]-bg,e=d[i+2]-bb;return a*a+b*b+e*e};
+  const dP=(p,q)=>{const i=p*4,j=q*4,a=d[i]-d[j],b=d[i+1]-d[j+1],e=d[i+2]-d[j+2];return a*a+b*b+e*e};
+  const seed=p=>{if(!m[p]&&dB(p)<cap2){m[p]=1;st[sp++]=p}};
+  for(let i=0;i<w;i++){seed(i);seed((h-1)*w+i)}for(let j=0;j<h;j++){seed(j*w);seed(j*w+w-1)}
+  const tryN=(p,q)=>{if(!m[q]&&dB(q)<cap2&&dP(p,q)<step2){m[q]=1;st[sp++]=q}};
+  while(sp){const p=st[--sp],px=p%w,py=(p-px)/w;
+    if(px>0)tryN(p,p-1);if(px<w-1)tryN(p,p+1);if(py>0)tryN(p,p-w);if(py<h-1)tryN(p,p+w)}
+  const isBg=(px,py)=>px<0||py<0||px>=w||py>=h||m[py*w+px]===1;
+  let x0=w,y0=h,x1=-1,y1=-1,fg=0;
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const p=py*w+px;
+    if(m[p]){d[p*4+3]=0;continue}
+    fg++;if(px<x0)x0=px;if(px>x1)x1=px;if(py<y0)y0=py;if(py>y1)y1=py;
+    if(isBg(px-1,py)||isBg(px+1,py)||isBg(px,py-1)||isBg(px,py+1))d[p*4+3]=150;
+  }
+  if(fg<N*.02||fg>N*.97)return null;
+  x.putImageData(im,0,0);
+  const bw=x1-x0+1,bh=y1-y0+1,pad=Math.round(Math.max(bw,bh)*.04);
+  const sx=Math.max(0,x0-pad),sy=Math.max(0,y0-pad),ex=Math.min(w,x1+pad+1),ey=Math.min(h,y1+pad+1);
+  const o=mk(ex-sx,ey-sy);o.getContext('2d').drawImage(c,sx,sy,ex-sx,ey-sy,0,0,ex-sx,ey-sy);
+  return o;
+}
+
+/* ---------- add item ---------- */
+let origCanvas=null,origURL=null,cutCanvas=null,cutURL=null,cutOn=false,curType='top',busyT;
+function paintStage(){
+  const s=$('#stage');
+  if(!origURL){
+    s.innerHTML=`<div class="pickrow"><button id="pCam">${ic('cam')}<span>كاميرا</span></button><button id="pGal">${ic('img')}<span>المعرض</span></button></div>`;
+    $('#pCam').onclick=()=>choose('camera');$('#pGal').onclick=()=>choose('gallery');
+    $('#photoTools').classList.add('hide');
+  }else{
+    s.innerHTML=`<img src="${cutOn&&cutURL?cutURL:origURL}" alt="">`;
+    $('#photoTools').classList.remove('hide');
+  }
+  $('#cutSw').classList.toggle('on',cutOn);
+  $('#tol').classList.toggle('show',cutOn);
+  $('#cutHint').classList.toggle('hide',!cutOn);
+}
+function newItem(){
+  origCanvas=origURL=cutCanvas=cutURL=null;cutOn=false;curType='top';
+  $('#name').value='';$('#color').value='#27407a';
+  drawTypeSeg();paintStage();sheet('form');
+}
+function drawTypeSeg(){
+  $('#typeSeg').innerHTML=Object.entries(TYPES).map(([k,l])=>`<button data-k="${k}" class="${curType===k?'on':''}">${l}</button>`).join('');
+  $('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{curType=b.dataset.k;drawTypeSeg()});
+}
+async function choose(src){
+  const url=await getPhoto(src);if(!url)return;
+  try{
+    origCanvas=await loadCanvas(url,900);
+    origURL=origCanvas.toDataURL('image/jpeg',.85);
+    cutCanvas=cutURL=null;cutOn=false;
+    const col=avgColor(origCanvas);if(col)$('#color').value=col;
+    paintStage();
+  }catch(e){toast('الصورة دي ماتفتحتش. جرّب صورة تانية.')}
+}
+$('#retake').onclick=()=>{origURL=null;origCanvas=null;cutOn=false;cutURL=cutCanvas=null;paintStage()};
+function runCut(){
+  if(!origCanvas)return;
+  $('#stage').classList.add('busy');
+  setTimeout(()=>{
+    const out=cutout(origCanvas,+$('#tolR').value);
+    $('#stage').classList.remove('busy');
+    if(!out){
+      cutOn=false;cutCanvas=cutURL=null;paintStage();
+      toast('ماقدرتش أفصل القطعة. صوّرها على خلفية سادة أو غيّر الحساسية.');return;
+    }
+    cutCanvas=out;cutURL=out.toDataURL('image/png');
+    const col=avgColor(out);if(col)$('#color').value=col;
+    paintStage();
+  },40);
+}
+$('#cutSw').onclick=()=>{
+  cutOn=!cutOn;
+  if(cutOn&&!cutURL){paintStage();runCut()}else paintStage();
+};
+$('#tolR').oninput=()=>{clearTimeout(busyT);busyT=setTimeout(runCut,200)};
+$('#saveItem').onclick=async()=>{
+  if(!origURL){toast('اختار صورة الأول');return}
+  const useCut=cutOn&&cutURL;
+  await put('items',{name:$('#name').value.trim(),type:curType,color:$('#color').value,season:$('#season').value,occ:$('#occ').value,img:useCut?cutURL:origURL,cut:!!useCut,added:Date.now()});
+  items=await all('items');sheet(null);filter='all';renderWardrobe();toast('اتضافت القطعة');
+};
+
+/* ---------- mix ---------- */
+function renderMix(){
+  $('#slots').innerHTML=SLOTS.map(([t,l])=>{
+    const list=items.filter(i=>i.type===t),cur=byId(pick[t]);
+    return `<div class="slot" data-t="${t}"><button class="arr" data-d="1" aria-label="التالي">${ic('r')}</button>
+      <div class="pic">${cur?imgTag(cur):`<div class="ph">${list.length?'اختار':'مفيش'}</div>`}</div>
+      <div class="tx"><span class="sub">${l}</span><b>${cur?esc(cur.name||'بدون اسم'):(list.length?'اضغط السهم':'ضيف '+l+' من الدولاب')}</b></div>
+      <button class="arr" data-d="-1" aria-label="السابق">${ic('l')}</button></div>`}).join('');
+  $('#slots').querySelectorAll('.arr').forEach(b=>b.onclick=()=>{
+    const t=b.closest('.slot').dataset.t,opt=SLOTS.find(s=>s[0]===t)[2],list=items.filter(i=>i.type===t).map(i=>i.id);
+    if(!list.length)return;if(opt)list.push(null);
+    const d=+b.dataset.d;
+    let ix=list.indexOf(pick[t]===undefined?(opt?null:undefined):pick[t]);
+    if(ix<0)ix=d>0?-1:0;
+    ix=(ix+d+list.length)%list.length;
+    if(list[ix]===null)delete pick[t];else pick[t]=list[ix];
+    renderMix();
+  });
+}
 $('#shuffle').onclick=()=>{
-  SLOTS.forEach(([t])=>{const l=items.filter(i=>i.type===t);
-    if(!l.length){delete pick[t];return}
-    if(t==='outer'&&Math.random()<.5){delete pick[t];return}
+  SLOTS.forEach(([t,,opt])=>{const l=items.filter(i=>i.type===t);
+    if(!l.length||(opt&&Math.random()<.5)){delete pick[t];return}
     pick[t]=rnd(l).id});
   renderMix();
 };
-$('#save').onclick=async()=>{
+$('#saveOutfit').onclick=()=>{
+  if(SLOTS.map(([t])=>pick[t]).filter(Boolean).length<2){toast('اختار قطعتين على الأقل');return}
+  $('#oName').value='';sheet('name');
+};
+$('#oSave').onclick=async()=>{
   const ids=SLOTS.map(([t])=>pick[t]).filter(Boolean);
-  if(ids.length<2){alert('اختار قطعتين على الأقل');return}
-  const name=prompt('اسم الطقم (اختياري):','')||'';
-  await put('outfits',{name,ids,added:Date.now()});
-  outfits=await all('outfits');alert('اتحفظ ✅');
+  await put('outfits',{name:$('#oName').value.trim(),ids,added:Date.now()});
+  outfits=await all('outfits');sheet(null);toast('اتحفظ الطقم');
 };
 
-/* ---------- Saved outfits ---------- */
+/* ---------- outfits ---------- */
 function renderOutfits(){
   const list=[...outfits].reverse();
-  $('#outfits').innerHTML=list.map(o=>{
-    const ims=o.ids.map(id=>items.find(i=>i.id===id)).filter(Boolean);
-    return `<div class="outfit"><div class="t"><span>${esc(o.name||'طقم')}</span><button data-id="${o.id}">حذف</button></div>
-      <div class="ims">${ims.map(i=>`<img src="${i.img}">`).join('')}</div></div>`}).join('');
+  $('#outfits').innerHTML=list.map(o=>`<div class="out"><div class="hd"><b>${esc(o.name||'طقم بدون اسم')}</b><button data-id="${o.id}">حذف</button></div><div class="ims">${outfitItems(o).map(i=>`<div class="pic">${imgTag(i)}</div>`).join('')}</div></div>`).join('');
   $('#outfits').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
-    const id=+b.dataset.id;
-    await rm('outfits',id);
+    if(!confirm('تحذف الطقم ده؟'))return;
+    const id=+b.dataset.id;await rm('outfits',id);
     for(const p of plan.filter(x=>x.outfitId===id))await rm('plan',p.date);
-    outfits=await all('outfits');plan=await all('plan');renderOutfits()});
+    outfits=await all('outfits');plan=await all('plan');renderOutfits();toast('اتحذف الطقم');
+  });
   $('#empty2').classList.toggle('hide',list.length>0);
 }
 
-/* ---------- Weekly plan ---------- */
-let plan=[],weekOff=0,pickDate=null;
-const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+/* ---------- weekly plan ---------- */
+let weekOff=0,selDate=null;
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=k=>new Date(k+'T00:00:00');
 function weekStart(off){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7)+off*7);return d}
-const outfitImgs=o=>o.ids.map(id=>items.find(i=>i.id===id)).filter(Boolean);
+const weekDays=()=>{const s=weekStart(weekOff);return[...Array(7)].map((_,i)=>{const d=new Date(s);d.setDate(s.getDate()+i);return d})};
 function renderPlan(){
-  const s=weekStart(weekOff),days=[...Array(7)].map((_,i)=>{const d=new Date(s);d.setDate(s.getDate()+i);return d});
-  const today=iso(new Date());
-  $('#weekLbl').textContent=days[0].getDate()+'/'+(days[0].getMonth()+1)+' – '+days[6].getDate()+'/'+(days[6].getMonth()+1);
-  $('#days').innerHTML=days.map(d=>{
-    const k=iso(d),p=plan.find(x=>x.date===k),o=p&&outfits.find(x=>x.id===p.outfitId);
-    const body=o?`<div class="ims">${outfitImgs(o).map(i=>`<img src="${i.img}">`).join('')}</div><small>${esc(o.name||'طقم')}</small>`:'<span class="none">＋ اختار طقم</span>';
-    return `<div class="day ${k===today?'today':''}" data-d="${k}"><div class="dn"><b>${DAYS[d.getDay()]}</b><small>${d.getDate()}/${d.getMonth()+1}</small></div><div class="dc">${body}</div></div>`}).join('');
-  $('#days').querySelectorAll('.day').forEach(e=>e.onclick=()=>openPick(e.dataset.d));
+  const days=weekDays(),today=iso(new Date());
+  if(!selDate||!days.some(d=>iso(d)===selDate))selDate=days.some(d=>iso(d)===today)?today:iso(days[0]);
+  $('#weekLbl').textContent=days[0].getDate()+'/'+(days[0].getMonth()+1)+'  –  '+days[6].getDate()+'/'+(days[6].getMonth()+1);
+  $('#strip').innerHTML=days.map(d=>{
+    const k=iso(d),p=plan.find(x=>x.date===k),o=p&&outfits.find(x=>x.id===p.outfitId),first=o&&outfitItems(o)[0];
+    return `<button class="dy ${k===today?'today':''} ${k===selDate?'sel':''}" data-d="${k}"><span>${DAYS[d.getDay()]}</span><span class="n">${d.getDate()}</span><span class="t">${first?imgTag(first):''}</span></button>`}).join('');
+  $('#strip').querySelectorAll('.dy').forEach(b=>b.onclick=()=>{selDate=b.dataset.d;renderPlan()});
+  const d=parse(selDate),p=plan.find(x=>x.date===selDate),o=p&&outfits.find(x=>x.id===p.outfitId);
+  $('#detail').innerHTML=`<h3>${DAYN[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</h3>`+(o
+    ?`<span class="sub">${esc(o.name||'طقم بدون اسم')}</span><div class="ims">${outfitItems(o).map(i=>`<div class="pic">${imgTag(i)}</div>`).join('')}</div><div class="btns two"><button class="btn" id="chg">غيّر الطقم</button><button class="btn dan" id="clr">شيل الطقم</button></div>`
+    :`<div class="noday">ماحددتش طقم لليوم ده</div><div class="btns"><button class="btn" id="chg">اختار طقم</button></div>`);
+  $('#chg').onclick=()=>openPick(selDate);
+  const c=$('#clr');if(c)c.onclick=async()=>{await rm('plan',selDate);plan=await all('plan');renderPlan()};
 }
 function openPick(k){
-  pickDate=k;const d=new Date(k+'T00:00:00'),cur=plan.find(x=>x.date===k);
-  $('#sheetTitle').dataset.pick='طقم '+DAYS[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
-  $('#pickList').innerHTML=outfits.length?[...outfits].reverse().map(o=>`<div class="outfit pk ${cur&&cur.outfitId===o.id?'sel':''}" data-id="${o.id}"><div class="t"><span>${esc(o.name||'طقم')}</span></div><div class="ims">${outfitImgs(o).map(i=>`<img src="${i.img}">`).join('')}</div></div>`).join(''):'<div class="empty">اعمل أطقم الأول من تبويب "نسّق" واحفظها</div>';
+  const d=parse(k),cur=plan.find(x=>x.date===k);
+  $('#pickTitle').textContent='طقم '+DAYN[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1);
+  $('#pickList').innerHTML=outfits.length?[...outfits].reverse().map(o=>`<button class="pk out ${cur&&cur.outfitId===o.id?'sel':''}" data-id="${o.id}"><div class="hd"><b>${esc(o.name||'طقم بدون اسم')}</b></div><div class="ims">${outfitItems(o).map(i=>`<div class="pic">${imgTag(i)}</div>`).join('')}</div></button>`).join(''):'<div class="empty" style="padding:24px 0"><p style="margin:0 auto">احفظ طقم من تبويب "تركيب" الأول.</p></div>';
   $('#pickList').querySelectorAll('.pk').forEach(e=>e.onclick=async()=>{
-    await put('plan',{date:k,outfitId:+e.dataset.id});plan=await all('plan');sheet(false);renderPlan()});
-  $('#clearDay').classList.toggle('hide',!cur);
-  sheet(true,'pick');
+    await put('plan',{date:k,outfitId:+e.dataset.id});plan=await all('plan');sheet(null);renderPlan()});
+  $('#clearDay').classList.add('hide');
+  sheet('pick');
 }
-$('#clearDay').onclick=async()=>{await rm('plan',pickDate);plan=await all('plan');sheet(false);renderPlan()};
-$('#pickClose').onclick=()=>sheet(false);
-$('#prevW').onclick=()=>{weekOff--;renderPlan()};
-$('#nextW').onclick=()=>{weekOff++;renderPlan()};
+$('#prevW').onclick=()=>{weekOff--;selDate=null;renderPlan()};
+$('#nextW').onclick=()=>{weekOff++;selDate=null;renderPlan()};
 $('#fillWeek').onclick=async()=>{
-  if(!outfits.length){alert('احفظ أطقم الأول');return}
-  const s=weekStart(weekOff);
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const k=iso(d);
-    if(!plan.find(x=>x.date===k))await put('plan',{date:k,outfitId:rnd(outfits).id});}
-  plan=await all('plan');renderPlan();
+  if(!outfits.length){toast('احفظ أطقم الأول من تبويب "تركيب"');return}
+  for(const d of weekDays()){const k=iso(d);if(!plan.find(x=>x.date===k))await put('plan',{date:k,outfitId:rnd(outfits).id})}
+  plan=await all('plan');renderPlan();toast('اتوزعت الأطقم');
 };
 
-/* ---------- Init ---------- */
+/* ---------- init ---------- */
 (async()=>{
-  await open();items=await all('items');outfits=await all('outfits');plan=await all('plan');
-  renderWardrobe();
+  await openDB();items=await all('items');outfits=await all('outfits');plan=await all('plan');
+  tab('wardrobe');
   if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>

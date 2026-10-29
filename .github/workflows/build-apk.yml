@@ -26,11 +26,12 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
-      - name: Add camera permission
+      - name: Apply launcher icons and splash
         run: |
-          sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <application#' android/app/src/main/AndroidManifest.xml
+          cp -r resources/android/res/. android/app/src/main/res/
+          find android/app/src/main/res -name 'splash.png' -exec cp resources/android/splash.png {} \;
 
-      - name: Sync web assets
+      - name: Sync web assets and plugins
         run: npx cap sync android
 
       - name: Build debug APK
