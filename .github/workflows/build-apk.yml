@@ -47,6 +47,25 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      # Gradle's default debug-key lookup did not pick up the restored key, so point it there explicitly.
+      - name: Point Gradle at the fixed key
+        if: steps.key.outputs.stable == 'true'
+        run: |
+          cat >> android/app/build.gradle <<EOF
+
+          android {
+              signingConfigs {
+                  debug {
+                      storeFile file("$HOME/.android/debug.keystore")
+                      storePassword "android"
+                      keyAlias "androiddebugkey"
+                      keyPassword "android"
+                  }
+              }
+          }
+          EOF
+          tail -14 android/app/build.gradle
+
       - name: Apply launcher icons and splash
         run: |
           cp -r resources/android/res/. android/app/src/main/res/
