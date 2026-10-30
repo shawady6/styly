@@ -34,6 +34,8 @@ jobs:
           if [ -n "$KS" ]; then
             echo "$KS" | base64 -d > ~/.android/debug.keystore
             echo "stable=true" >> "$GITHUB_OUTPUT"
+            FP=$(keytool -list -v -keystore ~/.android/debug.keystore -storepass android 2>&1 | grep -m1 "SHA256" || echo "keytool could not read the restored keystore")
+            echo "::notice::restored keystore: $FP (secret length ${#KS})"
           else
             echo "::warning::STYLY_KEYSTORE_B64 secret is missing. This APK is signed with a random key. Do NOT install it."
             echo "stable=false" >> "$GITHUB_OUTPUT"
@@ -67,8 +69,9 @@ jobs:
           GOT=$("$AS" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256 digest" | head -1 | awk '{print $NF}')
           echo "APK signing certificate SHA-256: $GOT"
           echo "sha=$GOT" >> "$GITHUB_OUTPUT"
+          echo "::notice::apk certificate: $GOT"
           if [ "$STABLE" = "true" ] && [ "$GOT" != "$EXPECTED" ]; then
-            echo "::error::Signing certificate does not match the expected Styly key. Not publishing."
+            echo "::error::Signing certificate does not match the expected Styly key (got '$GOT'). Not publishing."
             exit 1
           fi
 
