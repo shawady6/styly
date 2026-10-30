@@ -57,10 +57,20 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Print signing certificate (must be identical on every build)
+      - name: Verify signing certificate
+        id: cert
+        env:
+          STABLE: ${{ steps.key.outputs.stable }}
         run: |
+          EXPECTED=5762b81558dee98a958986552a76895f823728264fa3a0d60e3f003bd9539132
           AS=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
-          "$AS" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256"
+          GOT=$("$AS" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256 digest" | head -1 | awk '{print $NF}')
+          echo "APK signing certificate SHA-256: $GOT"
+          echo "sha=$GOT" >> "$GITHUB_OUTPUT"
+          if [ "$STABLE" = "true" ] && [ "$GOT" != "$EXPECTED" ]; then
+            echo "::error::Signing certificate does not match the expected Styly key. Not publishing."
+            exit 1
+          fi
 
       - name: Upload APK (not for install)
         if: steps.key.outputs.stable != 'true'
@@ -78,4 +88,4 @@ jobs:
           gh release delete latest --yes --cleanup-tag -R "${{ github.repository }}" || true
           gh release create latest Styly.apk -R "${{ github.repository }}" --target "${{ github.sha }}" --latest \
             --title "Styly - آخر نسخة" \
-            --notes "نزّل Styly.apk وثبّته فوق النسخة الموجودة. التحديث مش بيمسح البيانات."
+            --notes "نزّل Styly.apk وثبّته فوق النسخة الموجودة. التحديث مش بيمسح البيانات. بصمة التوقيع (SHA-256): ${{ steps.cert.outputs.sha }}"
