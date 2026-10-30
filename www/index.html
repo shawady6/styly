@@ -179,6 +179,7 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 </section>
 
 <section id="v-mix" class="hide">
+  <div class="filters" id="mixOcc"></div>
   <div class="mixact">
     <button class="btn" id="shuffle"></button>
   </div>
@@ -188,6 +189,7 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 </section>
 
 <section id="v-outfits" class="hide">
+  <div class="filters" id="outOcc"></div>
   <div id="outfits"></div>
   <div class="empty hide" id="empty2">
     <h3>مفيش أطقم محفوظة</h3>
@@ -406,30 +408,35 @@ function toHSL(hex){
     h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360}
   return{h,s,l};
 }
-function colorName(h,s,l){
-  if(l<.13)return 'أسود';
-  if(l>.93&&s<.3||l>.88&&s<.12)return 'أبيض';
-  if(s<.12)return l<.32?'رمادي غامق':(l<.72?'رمادي':'رمادي فاتح');
-  if(h>=18&&h<50&&s<.6&&l>.62)return 'بيج';
-  if(h>=18&&h<50&&l<.42)return 'بني';
-  if(h>=40&&h<70&&s<.5&&l>=.35&&l<=.62)return 'كاكي';
-  if(h>=60&&h<100&&l<.42&&s<.7)return 'زيتي';
-  if(h<15||h>=345){if(l<.32)return 'بوردو';if(l>.78)return 'وردي فاتح';return 'أحمر'}
-  if(h<45)return l>.7?'خوخي':'برتقالي';
-  if(h<70)return 'أصفر';
-  if(h<165)return l<.28?'أخضر غامق':'أخضر';
-  if(h<195)return 'تركواز';
-  if(h<255){if(l<.3)return 'كحلي';if(l>.72)return 'سماوي';return 'أزرق'}
-  if(h<290)return 'بنفسجي';
-  return l>.7?'وردي فاتح':'وردي';
+/* named fashion palette: nearest color in Lab space, so in-between shades (mint, teal, lavender...) get their own names */
+function toLab(hex){
+  const f=c=>{c/=255;return c>.04045?Math.pow((c+.055)/1.055,2.4):c/12.92};
+  const r=f(parseInt(hex.slice(1,3),16)),g=f(parseInt(hex.slice(3,5),16)),b=f(parseInt(hex.slice(5,7),16));
+  let x=(r*.4124+g*.3576+b*.1805)/.95047,y=r*.2126+g*.7152+b*.0722,z=(r*.0193+g*.1192+b*.9505)/1.08883;
+  const t=v=>v>.008856?Math.cbrt(v):7.787*v+16/116;
+  x=t(x);y=t(y);z=t(z);return[116*y-16,500*(x-y),200*(y-z)];
 }
-const CAT={'أسود':'N','أبيض':'N','رمادي غامق':'N','رمادي':'N','رمادي فاتح':'N','بيج':'N','كحلي':'V','بني':'E','كاكي':'E','زيتي':'E'};
+/* tags: BK black, WH white, GY greys, WM warm neutrals (cream/beige/camel/khaki), BR browns, NV navy, BL denim blue, LB sky,
+   TL teal, MT mint, GN greens, OL olive, YL yellows, OR orange, PC peach, CO coral, RS terracotta, RD red, BD burgundy, PK pinks, PU purples */
+const PAL=[
+['أسود','#1b1b1d','BK'],['فحمي','#383c42','GY'],['رمادي غامق','#5d636b','GY'],['رمادي','#8b9096','GY'],['رمادي فاتح','#c5c9cd','GY'],
+['أبيض','#f4f4f1','WH'],['كريمي','#efe5cf','WM'],['بيج','#dcc7a6','WM'],['كاكي','#b0a078','WM'],['جملي','#bf9560','WM'],
+['بني','#6b4423','BR'],['شوكولاتة','#3f2616','BR'],
+['كحلي','#1c2a4f','NV'],['أزرق','#3d68b0','BL'],['أزرق ملكي','#2347b5','BL'],['سماوي','#8cc4e8','LB'],
+['بترولي','#12606b','TL'],['تركواز','#2fb8b8','TL'],['نعناعي','#9bd9b9','MT'],
+['أخضر','#2f9a4d','GN'],['أخضر غامق','#1d4a30','GN'],['زمردي','#16805f','GN'],['ليموني','#aacb3a','GN'],['زيتي','#636a30','OL'],
+['أصفر','#f1cb22','YL'],['خردلي','#cfa21b','YL'],['برتقالي','#e8731a','OR'],['خوخي','#f9c9a4','PC'],['مرجاني','#ef6f5a','CO'],['قرميدي','#a9502d','RS'],
+['أحمر','#c4262c','RD'],['بوردو','#6e202f','BD'],['وردي','#e5799f','PK'],['وردي فاتح','#f3c4cc','PK'],['فوشيا','#c71f7a','PK'],
+['بنفسجي','#64389a','PU'],['لافندر','#b5a7da','PU']
+].map(([n,h,t])=>({n,h,t,lab:toLab(h)}));
+const CATOF={BK:'N',WH:'N',GY:'N',WM:'N',NV:'V',BR:'E',OL:'E',RS:'E',BL:'D'};
 const _pc={};
 function prof(it){
   const hx=(it&&it.color)||'#888888';
   if(_pc[hx])return _pc[hx];
-  const q=toHSL(hx),name=colorName(q.h,q.s,q.l);
-  return _pc[hx]={...q,name,cat:CAT[name]||'C'};
+  const q=toHSL(hx),L=toLab(hx);let best=PAL[0],bd=1e12;
+  for(const c of PAL){const d=(L[0]-c.lab[0])**2+(L[1]-c.lab[1])**2+(L[2]-c.lab[2])**2;if(d<bd){bd=d;best=c}}
+  return _pc[hx]={...q,name:best.n,tag:best.t,cat:CATOF[best.t]||'C'};
 }
 const cname=hx=>prof({color:hx}).name;
 
@@ -461,35 +468,110 @@ function domColor(c){
   return hex2(...cs[cnt.indexOf(Math.max(...cnt))]);
 }
 
-/* pair scoring: returns {s:0-100, n:reason} */
-function pairScore(A,B){
-  const a=A.name,b=B.name,ca=A.cat,cb=B.cat;
-  const has=n=>a===n||b===n,pair=(x,y)=>(a===x&&b===y)||(a===y&&b===x);
-  if(a===b&&(a==='أسود'||a==='أبيض'))return{s:62,n:'لون واحد كله'};
-  if(a===b&&ca!=='N'||a===b&&a.startsWith('رمادي'))return Math.abs(A.l-B.l)>=.22?{s:70,n:'درجتين من نفس اللون'}:{s:38,n:'نفس اللون تمامًا بدون تباين'};
-  if(pair('كحلي','أسود'))return{s:40,n:'كحلي مع أسود مش أفضل تناسق'};
-  if(pair('بني','أسود'))return{s:42,n:'بني مع أسود مش متناسق'};
-  if(has('أبيض'))return{s:93,n:'الأبيض بيمشي مع أي لون'};
-  if(has('أسود'))return{s:88,n:'الأسود لون آمن مع الباقي'};
-  if(has('كحلي')){
-    const o=a==='كحلي'?B:A;
-    if(o.name==='بيج'||o.name==='كاكي'||o.name.startsWith('رمادي'))return{s:92,n:'كحلي مع '+o.name+' تناسق كلاسيكي'};
-    if(['بني','سماوي','وردي فاتح','وردي'].includes(o.name))return{s:84,n:'كحلي مع '+o.name+' تناسق جميل'};
-    if(o.cat==='C')return{s:66,n:'كحلي مع لون واضح'};
-    return{s:72,n:'كحلي مع '+o.name};
+/* known color pairings (from fashion style guides: contrast, neutrals, classic pairs). pattern: exact name or #TAG. first match wins. */
+const RULES=[
+// pairs to avoid
+['كحلي','أسود',40,'كحلي مع أسود مش أفضل تناسق'],
+['#BR','أسود',42,'بني مع أسود مش متناسق'],
+['زيتي','كاكي',40,'زيتي مع كاكي بيبان مش متناسق'],
+['أحمر','#GN',38,'أحمر مع أخضر ممكن يبان زي زينة الكريسماس'],
+['أحمر','#PK',42,'أحمر مع وردي ألوان متقاربة ومتخانقة'],
+['برتقالي','#PK',42,'برتقالي مع وردي مش متناسق'],
+['برتقالي','أحمر',44,'برتقالي مع أحمر ألوان حادة مع بعض'],
+// classics
+['أسود','أبيض',93,'أبيض وأسود تباين قوي ومضمون'],
+['أسود','جملي',90,'أسود مع جملي من أشهر التنسيقات'],
+['كحلي','أبيض',95,'كحلي مع أبيض تناسق كلاسيكي'],
+['كحلي','#WM',92,'كحلي مع {b} تناسق كلاسيكي'],
+['كحلي','بوردو',90,'كحلي مع بوردو تناسق راقي'],
+['كحلي','#BR',88,'كحلي مع {b} متناسقين'],
+['كحلي','#GY',88,'كحلي مع {b} أنيق'],
+['كحلي','نعناعي',88,'كحلي مع نعناعي ألوان هادية ومنعشة'],
+['كحلي','خردلي',86,'كحلي مع خردلي تباين جميل'],
+['كحلي','مرجاني',86,'كحلي مع مرجاني تباين جميل'],
+['كحلي','#PK',85,'كحلي مع {b} تناسق جميل'],
+['كحلي','سماوي',82,'كحلي مع سماوي درجات من الأزرق'],
+['كحلي','لافندر',80,'كحلي مع لافندر تناسق هادي'],
+['كحلي','أحمر',80,'كحلي مع أحمر تناسق كلاسيكي'],
+['كحلي','زيتي',80,'كحلي مع زيتي تناسق ترابي'],
+['كحلي','أزرق',68,'درجتين من الأزرق قريبين'],
+['#GY','#PK',88,'رمادي مع وردي من التنسيقات الناجحة'],
+['#GY','سماوي',88,'رمادي مع سماوي هادي وأنيق'],
+['#GY','نعناعي',86,'رمادي مع نعناعي هادي ومنعش'],
+['#GY','لافندر',86,'رمادي مع لافندر هادي وأنيق'],
+['#GY','بوردو',84,'رمادي مع بوردو راقي'],
+['#GY','خردلي',84,'رمادي مع خردلي تباين جميل'],
+['#GY','#TL',84,'رمادي مع {b} تناسق جميل'],
+['#GY','مرجاني',82,'رمادي مع مرجاني تباين جميل'],
+['#BR','زيتي',86,'بني مع زيتي ألوان ترابية متناسقة'],
+['#BR','أخضر غامق',88,'بني مع أخضر غامق تناسق ترابي'],
+['#BR','كريمي',88,'بني مع كريمي هادي ودافي'],
+['#BR','بيج',86,'بني مع بيج ألوان ترابية'],
+['#BR','أزرق',86,'بني مع جينز تناسق مريح'],
+['#BR','نعناعي',82,'بني مع نعناعي تناسق هادي'],
+['#BR','سماوي',82,'بني مع سماوي تناسق مريح'],
+['#BR','خردلي',82,'بني مع خردلي ألوان دافية'],
+['#BR','جملي',80,'بني مع جملي درجات قريبة'],
+['زيتي','بيج',92,'زيتي مع بيج تناسق ترابي كلاسيكي'],
+['زيتي','كريمي',90,'زيتي مع كريمي تناسق ترابي'],
+['زيتي','جملي',84,'زيتي مع جملي ألوان ترابية'],
+['زيتي','#GY',80,'زيتي مع {b} متناسقين'],
+['زيتي','خردلي',80,'زيتي مع خردلي ألوان ترابية'],
+['زيتي','أزرق',78,'زيتي مع جينز تناسق مريح'],
+['بوردو','#WM',86,'بوردو مع {b} تناسق راقي'],
+['بوردو','أزرق',84,'بوردو مع جينز تناسق جميل'],
+['نعناعي','كريمي',88,'نعناعي مع كريمي هادي ومنعش'],
+['نعناعي','أزرق',80,'نعناعي مع جينز منعش'],
+['نعناعي','#PK',78,'نعناعي مع {b} ألوان باستيل'],
+['نعناعي','مرجاني',78,'نعناعي مع مرجاني مرح'],
+['نعناعي','لافندر',76,'نعناعي مع لافندر ألوان باستيل'],
+['نعناعي','خردلي',74,'نعناعي مع خردلي تباين دافي'],
+['#TL','#WM',84,'{a} مع {b} تناسق هادي'],
+['#TL','مرجاني',80,'{a} مع مرجاني تباين جميل'],
+['#TL','خردلي',80,'{a} مع خردلي تباين جميل'],
+['لافندر','#WM',76,'لافندر مع {b} تناسق هادي'],
+['خردلي','#WM',74,'خردلي مع {b} ألوان دافية'],
+['مرجاني','أزرق',82,'مرجاني مع جينز تباين جميل'],
+['مرجاني','#WM',80,'مرجاني مع {b} تناسق دافي'],
+['أحمر','كحلي',82,'أحمر مع كحلي كلاسيكي'],
+['أحمر','أزرق',76,'أحمر مع جينز تناسق مريح'],
+['أحمر','#WM',68,'أحمر مع {b}'],
+['أزرق','#WM',86,'جينز مع {b} تناسق مريح'],
+['أزرق','خردلي',84,'جينز مع خردلي تباين جميل'],
+['أزرق','#GY',84,'جينز مع {b} مريح'],
+['أزرق','#PK',82,'جينز مع {b} تناسق لطيف'],
+['أزرق','برتقالي',72,'أزرق مع برتقالي ألوان متضادة'],
+['أزرق','أصفر',70,'أزرق مع أصفر تباين قوي'],
+];
+const _rc=(p,P)=>p[0]==='#'?P.tag===p.slice(1):P.name===p;
+function pairScore(A,B,shoe){
+  const a=A.name,b=B.name;
+  if(a===b){
+    if(A.tag==='BK'||A.tag==='WH')return{s:62,n:'لون واحد كله'};
+    return Math.abs(A.l-B.l)>=.2?{s:70,n:'درجتين من نفس اللون'}:{s:38,n:'نفس اللون تمامًا بدون تباين'};
   }
+  if(A.tag==='GY'&&B.tag==='GY')return Math.abs(A.l-B.l)>=.22?{s:82,n:'درجات رمادي متدرجة'}:{s:50,n:'رمادي قريب جدًا من بعضه'};
+  for(const r of RULES){
+    let x=null,y=null;
+    if(_rc(r[0],A)&&_rc(r[1],B)){x=A;y=B}else if(_rc(r[0],B)&&_rc(r[1],A)){x=B;y=A}
+    if(x){
+      if(shoe&&r[0]==='كحلي'&&r[1]==='أسود')return{s:78,n:'جزمة سودا مع كحلي مقبولة'};
+      return{s:r[2],n:r[3].replace('{a}',x.name).replace('{b}',y.name)};
+    }
+  }
+  if(A.tag==='WH'||B.tag==='WH')return{s:93,n:'الأبيض بيمشي مع أي لون'};
+  if(A.tag==='BK'||B.tag==='BK')return{s:88,n:'الأسود لون آمن مع الباقي'};
+  const ca=A.cat,cb=B.cat;
   if(ca==='N'&&cb==='N')return{s:82,n:'ألوان محايدة مع بعض'};
   if(ca==='N'||cb==='N'){
     const o=ca==='N'?B:A,nn=ca==='N'?A:B;
     if(nn.name==='بيج'&&o.cat==='C'&&o.s>.6)return{s:62,n:'بيج مع لون قوي'};
     return{s:80,n:nn.name+' محايد مع '+o.name};
   }
+  if(ca==='D'||cb==='D')return{s:76,n:'جينز بيمشي مع أغلب الألوان'};
+  if(ca==='V'||cb==='V'){const o=ca==='V'?B:A;return o.cat==='C'?{s:66,n:'كحلي مع لون واضح'}:{s:72,n:'كحلي مع '+o.name}}
   if(ca==='E'&&cb==='E')return{s:78,n:'ألوان ترابية متناسقة'};
-  if(ca==='E'||cb==='E'){
-    const o=ca==='E'?B:A;
-    if(o.name==='أزرق'||o.name==='سماوي')return{s:76,n:'ترابي مع أزرق تناسق مريح'};
-    return{s:58,n:'لون ترابي مع لون واضح'};
-  }
+  if(ca==='E'||cb==='E')return{s:58,n:'لون ترابي مع لون واضح'};
   let dh=Math.abs(A.h-B.h);dh=Math.min(dh,360-dh);const dl=Math.abs(A.l-B.l);
   if(dh<=25)return dl>=.2?{s:72,n:'درجات متقاربة من نفس العائلة'}:{s:48,n:'ألوان متقاربة جدًا بدون تباين'};
   if(dh>=150)return Math.min(A.s,B.s)>.55?{s:42,n:'لونين متضادين قويين'}:{s:64,n:'ألوان متضادة متوازنة'};
@@ -521,13 +603,15 @@ function outfitScore(sel,recent){
   let sum=0,wt=0,bw=-1,best={n:''},worst={s:101,n:''},tb=null;
   for(const [a,b,w] of pairs){
     if(!sel[a]||!sel[b])continue;
-    const pa=prof(sel[a]),pb=prof(sel[b]),r=pairScore(pa,pb),v=Math.max(0,Math.min(100,r.s+prefOf(pa.name,pb.name)));
+    const pa=prof(sel[a]),pb=prof(sel[b]),r=pairScore(pa,pb,b==='shoes'),v=Math.max(0,Math.min(100,r.s+prefOf(pa.name,pb.name)));
     sum+=v*w;wt+=w;if(r.s*w>bw){bw=r.s*w;best={n:r.n}}if(r.s<worst.s)worst={s:r.s,n:r.n};if(a==='top'&&b==='bottom')tb=v;
   }
   if(!wt)return null;
   let score=sum/wt,pen=0;const why=[];
   if(tb!==null)score=Math.min(score,tb+15);
+  if(sel.top&&sel.bottom&&Math.abs(prof(sel.top).l-prof(sel.bottom).l)>=.3)score=Math.min(100,score+4);
   if(worst.s<50)why.push(worst.n);
+  if(keys.length>=3){const nm=new Set(keys.map(k=>prof(sel[k]).name));if(nm.size===1&&!['BK','WH'].includes(prof(sel[keys[0]]).tag)){pen+=15;why.push('كل القطع بنفس اللون')}}
   const fam=new Set();keys.forEach(k=>{const p=prof(sel[k]);if(p.cat==='C')fam.add(Math.round(p.h/45)%8)});
   if(fam.size>2){pen+=12*(fam.size-2);why.push('ألوان واضحة كتير في طقم واحد')}
   const fs=keys.map(k=>FORM[sel[k].occ]).filter(v=>v!==undefined),sp=fs.length?Math.max(...fs)-Math.min(...fs):0;
@@ -589,16 +673,24 @@ $('#saveItem').onclick=async()=>{
 };
 
 /* ---------- mix ---------- */
+const OCCS=['كاجوال','رسمي','رياضي','خروجة'];
+let mixOcc='all',outOcc='all';
+const pool=t=>items.filter(i=>i.type===t&&(mixOcc==='all'||i.occ===mixOcc));
+function drawOcc(el,cur,cb){
+  el.innerHTML=[['all','الكل'],...OCCS.map(o=>[o,o])].map(([k,l])=>`<button data-k="${k}" class="${cur===k?'on':''}">${l}</button>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>cb(b.dataset.k));
+}
 const curSel=()=>{const s={};SLOTS.forEach(([t])=>{const i=byId(pick[t]);if(i)s[t]=i});return s};
 function renderMix(){
+  drawOcc($('#mixOcc'),mixOcc,k=>{mixOcc=k;for(const t of Object.keys(pick))if(!pool(t).some(i=>i.id===pick[t]))delete pick[t];renderMix()});
   $('#slots').innerHTML=SLOTS.map(([t,l])=>{
-    const list=items.filter(i=>i.type===t),cur=byId(pick[t]);
+    const list=pool(t),cur=byId(pick[t]);
     return `<div class="slot" data-t="${t}"><button class="arr" data-d="1" aria-label="التالي">${ic('r')}</button>
       <div class="pic">${cur?imgTag(cur):`<div class="ph">${list.length?'اختار':'مفيش'}</div>`}</div>
-      <div class="tx"><span class="sub">${l}${cur?' · '+prof(cur).name:''}</span><b>${cur?esc(cur.name||'بدون اسم'):(list.length?'اضغط السهم':'ضيف '+l+' من الدولاب')}</b>${list.length?`<button class="best" data-b="${t}">الأنسب للباقي</button>`:''}</div>
+      <div class="tx"><span class="sub">${l}${cur?' · '+prof(cur).name:''}</span><b>${cur?esc(cur.name||'بدون اسم'):(list.length?'اضغط السهم':(mixOcc!=='all'&&items.some(i=>i.type===t)?'مفيش '+l+' '+mixOcc:'ضيف '+l+' من الدولاب'))}</b>${list.length?`<button class="best" data-b="${t}">الأنسب للباقي</button>`:''}</div>
       <button class="arr" data-d="-1" aria-label="السابق">${ic('l')}</button></div>`}).join('');
   $('#slots').querySelectorAll('.arr').forEach(b=>b.onclick=()=>{
-    const t=b.closest('.slot').dataset.t,opt=SLOTS.find(s=>s[0]===t)[2],list=items.filter(i=>i.type===t).map(i=>i.id);
+    const t=b.closest('.slot').dataset.t,opt=SLOTS.find(s=>s[0]===t)[2],list=pool(t).map(i=>i.id);
     if(!list.length)return;if(opt)list.push(null);
     const d=+b.dataset.d;
     let ix=list.indexOf(pick[t]===undefined?(opt?null:undefined):pick[t]);
@@ -617,12 +709,12 @@ function bestFor(t){
   const sel=curSel();delete sel[t];
   if(Object.keys(sel).length<1){toast('اختار قطعة تانية الأول');return}
   const rc=recentItems();let best=null,bs=-1;
-  for(const c of items.filter(i=>i.type===t)){const r=outfitScore({...sel,[t]:c},rc);if(r&&r.score>bs){bs=r.score;best=c}}
+  for(const c of pool(t)){const r=outfitScore({...sel,[t]:c},rc);if(r&&r.score>bs){bs=r.score;best=c}}
   if(!best)return;
   pick[t]=best.id;renderMix();toast('الأنسب: '+(best.name||'بدون اسم')+' ('+bs+'%)');
 }
 $('#shuffle').onclick=()=>{
-  SLOTS.forEach(([t,,opt])=>{const l=items.filter(i=>i.type===t);
+  SLOTS.forEach(([t,,opt])=>{const l=pool(t);
     if(!l.length||(opt&&Math.random()<.5)){delete pick[t];return}
     pick[t]=rnd(l).id});
   renderMix();
@@ -644,15 +736,19 @@ $('#oSave').onclick=async()=>{
 };
 
 /* ---------- outfits ---------- */
+function outfitOcc(o){const ocs=new Set(outfitItems(o).map(i=>i.occ));return ocs.size===1?[...ocs][0]:'مختلط'}
 function renderOutfits(){
-  const list=[...outfits].reverse();
-  $('#outfits').innerHTML=list.map(o=>`<div class="out"><div class="hd"><b>${esc(o.name||'طقم بدون اسم')}</b><button data-id="${o.id}">حذف</button></div><div class="ims">${outfitItems(o).map(i=>`<div class="pic">${imgTag(i)}</div>`).join('')}</div></div>`).join('');
+  drawOcc($('#outOcc'),outOcc,k=>{outOcc=k;renderOutfits()});
+  $('#outOcc').classList.toggle('hide',!outfits.length);
+  const list=[...outfits].reverse().filter(o=>outOcc==='all'||outfitOcc(o)===outOcc);
+  $('#outfits').innerHTML=list.map(o=>`<div class="out"><div class="hd"><b>${esc(o.name||'طقم بدون اسم')} <span class="sub">· ${esc(outfitOcc(o))}</span></b><button data-id="${o.id}">حذف</button></div><div class="ims">${outfitItems(o).map(i=>`<div class="pic">${imgTag(i)}</div>`).join('')}</div></div>`).join('');
   $('#outfits').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
     if(!confirm('تحذف الطقم ده؟'))return;
     const id=+b.dataset.id;await rm('outfits',id);
     for(const p of plan.filter(x=>x.outfitId===id))await rm('plan',p.date);
     outfits=await all('outfits');plan=await all('plan');renderOutfits();toast('اتحذف الطقم');
   });
+  $('#empty2').innerHTML=outfits.length?`<h3>مفيش أطقم ${esc(outOcc)}</h3>`:'<h3>مفيش أطقم محفوظة</h3><p>ركّب طقم من تبويب "تركيب" واحفظه.</p>';
   $('#empty2').classList.toggle('hide',list.length>0);
 }
 
