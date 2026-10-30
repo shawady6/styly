@@ -76,7 +76,7 @@ svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:
 .slot .tx{flex:1;min-width:0}
 .slot .tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slot .ph{width:100%;display:grid;place-items:center;color:var(--mut);font-size:12px;text-align:center;padding:4px}
-.mixact{padding:12px 16px 0;display:grid;gap:10px;grid-template-columns:1.4fr 1fr}
+.mixact{padding:12px 16px 0;display:grid;gap:10px}
 
 /* outfits */
 .out{padding:14px 16px;border-bottom:1px solid var(--ln)}
@@ -153,14 +153,6 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 .pill.g{background:#d6efdc;color:#16642b}.pill.m{background:#fbeabf;color:#6b4d00}.pill.b{background:#f6d4d1;color:#8a1d15}
 @media(prefers-color-scheme:dark){.pill.g{background:#1d3d27;color:#8fe0a6}.pill.m{background:#47390f;color:#f4d27a}.pill.b{background:#4a1f1c;color:#ffb4ab}}
 .best{border:0;background:none;color:var(--den);font-weight:600;padding:4px 0 0;font-size:13px;display:block}
-.rc{padding:14px 0;border-bottom:1px solid var(--ln)}
-.rc .ims .pic{aspect-ratio:1}
-.rm{display:flex;align-items:center;gap:10px;margin:10px 0 8px}
-.rb{display:flex;gap:8px}
-.rb button{flex:1;padding:9px 6px;border-radius:10px;border:1.5px solid var(--ln);background:var(--sf);font-size:13.5px;font-weight:600}
-.rb button.p{background:var(--den);border-color:var(--den);color:var(--onden)}
-.rb button:disabled{opacity:.45}
-.rc.liked{background:linear-gradient(90deg,transparent,#2e7d3218)}.rc.disliked{opacity:.5}
 .pickrow{grid-template-columns:repeat(3,1fr)!important}
 .hide{display:none!important}
 :focus-visible{outline:2px solid var(--den);outline-offset:2px}
@@ -188,8 +180,7 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 
 <section id="v-mix" class="hide">
   <div class="mixact">
-    <button class="btn" id="recBtn">رشّح لي أطقم</button>
-    <button class="btn ghost" id="shuffle"></button>
+    <button class="btn" id="shuffle"></button>
   </div>
   <div class="score" id="score"></div>
   <div id="slots"></div>
@@ -266,14 +257,6 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
       <button class="btn ghost" data-close>إغلاق</button>
     </div>
 
-    <div id="m-rec" class="hide">
-      <h2>ترشيحات الألوان</h2>
-      <p class="sub" style="margin:-6px 0 4px">مرتبة حسب تناسق الألوان والمناسبة والموسم. اضغط "يعجبني" أو "مش عاجبني" والتطبيق يتعلم ذوقك.</p>
-      <div id="recList"></div>
-      <button class="btn" id="recMore">غيّر الترشيحات</button>
-      <button class="btn ghost" data-close>إغلاق</button>
-    </div>
-
     <div id="m-name" class="hide">
       <h2>اسم الطقم</h2>
       <input type="text" id="oName" placeholder="مثال: شغل يوم الأحد">
@@ -336,7 +319,7 @@ const outfitItems=o=>o.ids.map(byId).filter(Boolean);
 function sheet(mode){
   $('#sbg').classList.toggle('show',!!mode);
   const sh=document.querySelector('#sbg .sheet');if(sh)sh.scrollTop=0;
-  ['form','detail','pick','name','rec'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
+  ['form','detail','pick','name'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.target.id==='sbg')sheet(null)});
 
@@ -344,8 +327,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.tar
 const TABS=[['wardrobe','الدولاب','grid'],['mix','تركيب','mix'],['outfits','أطقمي','mark'],['plan','الأسبوع','cal']];
 TABS.forEach(([k,l,i])=>{const b=$('#t-'+k);b.innerHTML=ic(i)+'<span>'+l+'</span>';b.onclick=()=>tab(k)});
 $('#addBtn').innerHTML=ic('plus')+'<span>قطعة</span>';
-$('#shuffle').innerHTML=ic('shuf')+'<span>عشوائي</span>';
-$('#recBtn').innerHTML=ic('spark')+'<span>رشّح لي أطقم</span>';
+$('#shuffle').innerHTML=ic('spark')+'<span>نسّق لي</span>';
 $('#prevW').innerHTML=ic('r');$('#nextW').innerHTML=ic('l');
 function tab(n){
   TABS.forEach(([k])=>{$('#v-'+k).classList.toggle('hide',k!==n);$('#t-'+k).classList.toggle('on',k===n)});
@@ -556,30 +538,6 @@ function outfitScore(sel,recent){
   score=Math.max(0,Math.min(100,score-pen));
   return{score:Math.round(score),note:why[0]||best.n,ok:!why.length};
 }
-function suggest(n){
-  const by=t=>items.filter(i=>i.type===t),T=by('top'),B=by('bottom'),S=by('shoes'),O=by('outer');
-  if(!T.length||!B.length||!S.length)return null;
-  const rc=recentItems(),all=[];
-  for(const t of T)for(const b of B)for(const s of S){
-    const r=outfitScore({top:t,bottom:b,shoes:s},rc);all.push({sel:{top:t,bottom:b,shoes:s},...r,rk:r.score+Math.random()*4});
-  }
-  all.sort((x,y)=>y.rk-x.rk);
-  const head=all.slice(0,30);
-  if(O.length)head.forEach(c=>{
-    let bo=null,bs=c.score;
-    for(const o of O){const r=outfitScore({...c.sel,outer:o},rc);if(r.score>bs+2){bs=r.score;bo=o;c.note=r.note}}
-    if(bo){c.sel.outer=bo;c.score=bs;c.rk=bs+Math.random()*4}
-  });
-  head.sort((x,y)=>y.rk-x.rk);
-  const out=[],ut={},ub={};
-  for(const c of head){
-    if(out.length>=n)break;
-    if((ut[c.sel.top.id]||0)>=2||(ub[c.sel.bottom.id]||0)>=2)continue;
-    ut[c.sel.top.id]=(ut[c.sel.top.id]||0)+1;ub[c.sel.bottom.id]=(ub[c.sel.bottom.id]||0)+1;out.push(c);
-  }
-  return out;
-}
-
 /* ---------- add item ---------- */
 let origCanvas=null,origURL=null,isCut=false,curType='top';
 function paintStage(){
@@ -673,34 +631,17 @@ $('#saveOutfit').onclick=()=>{
   if(Object.keys(curSel()).length<2){toast('اختار قطعتين على الأقل');return}
   $('#oName').value='';sheet('name');
 };
+let saving=false;
 $('#oSave').onclick=async()=>{
-  const ids=SLOTS.map(([t])=>pick[t]).filter(Boolean);
-  await put('outfits',{name:$('#oName').value.trim(),ids,added:Date.now()});
-  learn(curSel(),1);
-  outfits=await all('outfits');sheet(null);toast('اتحفظ الطقم');
+  if(saving)return;saving=true;
+  try{
+    const ids=SLOTS.map(([t])=>pick[t]).filter(Boolean),key=[...ids].sort().join(',');
+    if(outfits.some(o=>[...o.ids].sort().join(',')===key)){sheet(null);toast('الطقم ده محفوظ قبل كده في "أطقمي"');return}
+    await put('outfits',{name:$('#oName').value.trim(),ids,added:Date.now()});
+    learn(curSel(),1);
+    outfits=await all('outfits');sheet(null);toast('اتحفظ الطقم في "أطقمي"');
+  }finally{saving=false}
 };
-
-/* ---------- recommendations ---------- */
-let recs=[];
-function openRecs(){
-  const r=suggest(5);
-  if(!r){toast('محتاج على الأقل قميص وبنطلون وجزمة في الدولاب');return}
-  recs=r;
-  $('#recList').innerHTML=recs.map((c,i)=>`<div class="rc" data-i="${i}"><div class="ims">${['top','bottom','shoes','outer'].filter(k=>c.sel[k]).map(k=>`<div class="pic">${imgTag(c.sel[k])}</div>`).join('')}</div>
-    <div class="rm"><span class="pill ${c.score>=75?'g':c.score>=55?'m':'b'}">${c.score}%</span><span class="sub">${esc(c.note)}</span></div>
-    <div class="rb"><button data-a="use" class="p">استخدم</button><button data-a="up">يعجبني</button><button data-a="down">مش عاجبني</button></div></div>`).join('');
-  $('#recList').querySelectorAll('.rc').forEach(card=>{
-    const c=recs[+card.dataset.i];
-    card.querySelectorAll('button').forEach(b=>b.onclick=()=>{
-      const a=b.dataset.a;
-      if(a==='use'){pick={};for(const k of Object.keys(c.sel))pick[k]=c.sel[k].id;sheet(null);tab('mix')}
-      else{learn(c.sel,a==='up'?1:-1);card.classList.add(a==='up'?'liked':'disliked');card.querySelectorAll('.rb button:not(.p)').forEach(x=>x.disabled=true);toast(a==='up'?'تمام، هرشّح لك أطقم زي دي أكتر':'تمام، هقلل الألوان دي مع بعض')}
-    });
-  });
-  sheet('rec');
-}
-$('#recBtn').onclick=openRecs;
-$('#recMore').onclick=openRecs;
 
 /* ---------- outfits ---------- */
 function renderOutfits(){
