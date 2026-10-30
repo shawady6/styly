@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,6 +22,22 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      # A fixed signing key is what lets every new APK install over the previous one
+      # without uninstalling (and losing data). It lives in the STYLY_KEYSTORE_B64 secret.
+      - name: Restore signing key
+        id: key
+        env:
+          KS: ${{ secrets.STYLY_KEYSTORE_B64 }}
+        run: |
+          mkdir -p ~/.android
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > ~/.android/debug.keystore
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::STYLY_KEYSTORE_B64 secret is missing. This APK is signed with a random key. Do NOT install it."
+            echo "stable=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install dependencies
         run: npm install
@@ -38,8 +57,25 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Print signing certificate (must be identical on every build)
+        run: |
+          AS=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
+          "$AS" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256"
+
+      - name: Upload APK (not for install)
+        if: steps.key.outputs.stable != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: styly-debug-apk
+          name: styly-temp-apk-DO-NOT-INSTALL
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish APK to the latest release
+        if: steps.key.outputs.stable == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk Styly.apk
+          gh release delete latest --yes --cleanup-tag -R "${{ github.repository }}" || true
+          gh release create latest Styly.apk -R "${{ github.repository }}" --target "${{ github.sha }}" --latest \
+            --title "Styly - آخر نسخة" \
+            --notes "نزّل Styly.apk وثبّته فوق النسخة الموجودة. التحديث مش بيمسح البيانات."

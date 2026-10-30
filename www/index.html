@@ -30,6 +30,10 @@ svg{display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:
 .tape::before,.tape::after{content:"";position:absolute;inset-inline:0;top:0;background-repeat:repeat-x}
 .tape::before{height:6px;background-image:linear-gradient(90deg,#14181f 1px,transparent 1px);background-size:6px 100%;opacity:.55}
 .tape::after{height:11px;background-image:linear-gradient(90deg,#14181f 1.5px,transparent 1.5px);background-size:30px 100%;opacity:.8}
+.hb{display:flex;align-items:center;gap:8px}
+.ib{position:relative;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--ln);background:var(--sf);display:grid;place-items:center;color:var(--ink)}
+.ib svg{width:20px;height:20px}
+.ib.dot::after{content:"";position:absolute;top:2px;inset-inline-end:2px;width:10px;height:10px;border-radius:50%;background:var(--dan);border:2px solid var(--bg)}
 .add{display:none;align-items:center;gap:6px;border:0;background:var(--den);color:var(--onden);padding:9px 14px 9px 16px;border-radius:99px;font-weight:700;font-size:14px}
 .add.show{display:flex}
 .add svg{width:18px;height:18px;stroke-width:2.2}
@@ -163,7 +167,10 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 <header class="top">
   <div class="row">
     <h1 class="logo">Styly</h1>
-    <button class="add" id="addBtn"></button>
+    <div class="hb">
+      <button class="ib" id="bkBtn" aria-label="نسخة احتياطية"></button>
+      <button class="add" id="addBtn"></button>
+    </div>
   </div>
   <div class="tape" aria-hidden="true"></div>
 </header>
@@ -259,6 +266,15 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
       <button class="btn ghost" data-close>إغلاق</button>
     </div>
 
+    <div id="m-backup" class="hide">
+      <h2>نسخة احتياطية</h2>
+      <p class="sub" id="bkInfo" style="margin:-4px 0 6px"></p>
+      <button class="btn" id="bkExport">حفظ نسخة احتياطية</button>
+      <button class="btn ghost" id="bkImport">استرجاع من نسخة</button>
+      <p class="hint" style="margin-top:12px">النسخة ملف واحد فيه كل القطع والأطقم والأسبوع. احفظه على Drive أو ابعته لنفسك على واتساب. اعمل نسخة قبل ما تمسح التطبيق أو تغيّر الموبايل.</p>
+      <button class="btn ghost" data-close>إغلاق</button>
+    </div>
+
     <div id="m-name" class="hide">
       <h2>اسم الطقم</h2>
       <input type="text" id="oName" placeholder="مثال: شغل يوم الأحد">
@@ -270,6 +286,7 @@ input[type=color]{width:100%;height:46px;border:1.5px solid var(--ln);border-rad
 
 <div class="toast" id="toast"></div>
 <input type="file" id="file" accept="image/*" hidden>
+<input type="file" id="bkFile" accept=".json,application/json" hidden>
 
 <script>
 /* ---------- constants ---------- */
@@ -286,6 +303,7 @@ const P={
   cam:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.8"/>',
   img:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/>',
   shuf:'<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>',
+  bak:'<path d="M12 4v11m0 0 4-4m-4 4-4-4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
   spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"/><path d="M19 16v4M17 18h4"/>',
   file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/>',
   r:'<path d="m9 6 6 6-6 6"/>',
@@ -321,7 +339,7 @@ const outfitItems=o=>o.ids.map(byId).filter(Boolean);
 function sheet(mode){
   $('#sbg').classList.toggle('show',!!mode);
   const sh=document.querySelector('#sbg .sheet');if(sh)sh.scrollTop=0;
-  ['form','detail','pick','name'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
+  ['form','detail','pick','name','backup'].forEach(m=>$('#m-'+m).classList.toggle('hide',m!==mode));
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.target.id==='sbg')sheet(null)});
 
@@ -329,12 +347,13 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-close]')||e.tar
 const TABS=[['wardrobe','الدولاب','grid'],['mix','تركيب','mix'],['outfits','أطقمي','mark'],['plan','الأسبوع','cal']];
 TABS.forEach(([k,l,i])=>{const b=$('#t-'+k);b.innerHTML=ic(i)+'<span>'+l+'</span>';b.onclick=()=>tab(k)});
 $('#addBtn').innerHTML=ic('plus')+'<span>قطعة</span>';
+$('#bkBtn').innerHTML=ic('bak');
 $('#shuffle').innerHTML=ic('spark')+'<span>نسّق لي</span>';
 $('#prevW').innerHTML=ic('r');$('#nextW').innerHTML=ic('l');
 function tab(n){
   TABS.forEach(([k])=>{$('#v-'+k).classList.toggle('hide',k!==n);$('#t-'+k).classList.toggle('on',k===n)});
   $('#addBtn').classList.toggle('show',n==='wardrobe');
-  window.scrollTo(0,0);
+  window.scrollTo(0,0);updateDot();
   if(n==='wardrobe')renderWardrobe();if(n==='mix')renderMix();if(n==='outfits')renderOutfits();if(n==='plan')renderPlan();
 }
 
@@ -790,10 +809,64 @@ $('#fillWeek').onclick=async()=>{
   plan=await all('plan');renderPlan();toast('اتوزعت الأطقم');
 };
 
+/* ---------- backup ---------- */
+const LB='styly-last-backup';
+const lastBackup=()=>{try{return +localStorage.getItem(LB)||0}catch(e){return 0}};
+function markBackup(){try{localStorage.setItem(LB,String(Date.now()))}catch(e){}updateDot()}
+function updateDot(){$('#bkBtn').classList.toggle('dot',items.length>0&&(Date.now()-lastBackup()>14*864e5))}
+function nativePlugin(n){const C=window.Capacitor;try{if(C&&C.isNativePlatform&&C.isNativePlatform())return(C.Plugins&&C.Plugins[n])||C.registerPlugin(n)}catch(e){}return null}
+async function buildBackup(){
+  return JSON.stringify({app:'styly',v:1,date:new Date().toISOString(),items:await all('items'),outfits:await all('outfits'),plan:await all('plan'),prefs});
+}
+function chunks(str,n){
+  const out=[];let i=0;
+  while(i<str.length){let j=Math.min(str.length,i+n);if(j<str.length){const c=str.charCodeAt(j-1);if(c>=0xD800&&c<=0xDBFF)j--}out.push(str.slice(i,j));i=j}
+  return out;
+}
+$('#bkBtn').onclick=()=>{
+  const lb=lastBackup();
+  $('#bkInfo').textContent=items.length+' قطعة · '+outfits.length+' طقم · '+(lb?'آخر نسخة: '+new Date(lb).toLocaleDateString('ar-EG'):'لسه ماعملتش نسخة');
+  sheet('backup');
+};
+$('#bkExport').onclick=async()=>{
+  const json=await buildBackup(),name='styly-backup-'+iso(new Date())+'.json';
+  const FS=nativePlugin('Filesystem'),SH=nativePlugin('Share');
+  if(FS&&SH){
+    try{
+      const parts=chunks(json,1500000);
+      await FS.writeFile({path:name,data:parts[0],directory:'CACHE',encoding:'utf8'});
+      for(const part of parts.slice(1))await FS.appendFile({path:name,data:part,directory:'CACHE',encoding:'utf8'});
+      const r=await FS.getUri({path:name,directory:'CACHE'});
+      await SH.share({title:'نسخة Styly الاحتياطية',dialogTitle:'احفظ النسخة الاحتياطية',url:r.uri});
+      markBackup();sheet(null);toast('اتعملت النسخة. اتأكد إنك حفظتها في مكان آمن.');
+    }catch(e){
+      if(!/cancel/i.test(String((e&&e.message)||e)))toast('ماقدرتش أعمل النسخة. جرّب تاني.');
+    }
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();markBackup();sheet(null);toast('اتنزلت النسخة');
+};
+$('#bkImport').onclick=()=>$('#bkFile').click();
+$('#bkFile').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  let d;try{d=JSON.parse(await f.text())}catch(x){toast('الملف ده مش نسخة Styly صحيحة');return}
+  if(!d||d.app!=='styly'||!Array.isArray(d.items)){toast('الملف ده مش نسخة Styly صحيحة');return}
+  if(!confirm('هتستبدل الدولاب الحالي ('+items.length+' قطعة) بالنسخة ('+d.items.length+' قطعة، '+(d.outfits||[]).length+' طقم). تكمل؟'))return;
+  for(const st of ['items','outfits','plan'])await tx(st,'readwrite',o=>o.clear());
+  for(const i of d.items)await put('items',i);
+  for(const o of d.outfits||[])await put('outfits',o);
+  for(const q of d.plan||[])await put('plan',q);
+  prefs=d.prefs||{};try{localStorage.setItem('styly-prefs',JSON.stringify(prefs))}catch(x){}
+  items=await all('items');outfits=await all('outfits');plan=await all('plan');pick={};
+  sheet(null);tab('wardrobe');updateDot();toast('اتسترجع الدولاب: '+items.length+' قطعة');
+};
+
 /* ---------- init ---------- */
 (async()=>{
   await openDB();items=await all('items');outfits=await all('outfits');plan=await all('plan');
-  tab('wardrobe');
+  tab('wardrobe');updateDot();
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
   if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
