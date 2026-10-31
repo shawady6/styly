@@ -2,7 +2,7 @@ name: Build APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'redesign/**']
   workflow_dispatch:
 
 permissions:
@@ -101,8 +101,16 @@ jobs:
           name: styly-temp-apk-DO-NOT-INSTALL
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
+      # Work branches get an installable preview artifact; only main may touch the public 'latest' release.
+      - name: Upload preview APK (branch builds)
+        if: steps.key.outputs.stable == 'true' && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: styly-preview-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
       - name: Publish APK to the latest release
-        if: steps.key.outputs.stable == 'true'
+        if: steps.key.outputs.stable == 'true' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
