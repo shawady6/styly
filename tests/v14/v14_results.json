@@ -1,0 +1,92 @@
+[
+ {
+  "id": "H1",
+  "desc": "Hoodie type exists, defaults season to winter",
+  "status": "PASS",
+  "detail": "شتا"
+ },
+ {
+  "id": "H2",
+  "desc": "Hoodie filter in wardrobe",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "H3",
+  "desc": "Hoodie is chosen in the top slot (replaces shirt) and outfit is scored",
+  "status": "PASS",
+  "detail": "hoodie"
+ },
+ {
+  "id": "H4",
+  "desc": "Top slot pool contains both shirts and hoodies",
+  "status": "PASS",
+  "detail": "2"
+ },
+ {
+  "id": "H5",
+  "desc": "Saved outfit with hoodie shows a score pill (slot mapping)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "H6",
+  "desc": "Home featured outfit with hoodie renders",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U1",
+  "desc": "Silent check on launch finds a newer version; Home shows update card and settings dot",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U2",
+  "desc": "Settings shows version, size and a download button (web: link)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U3",
+  "desc": "Same version = \"latest\" message, no update card",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U4a",
+  "desc": "Failed check on launch shows nothing",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U4b",
+  "desc": "Manual check failure shows friendly error",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U5a",
+  "desc": "Native: button reads \"download and install\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U5b",
+  "desc": "Native: downloads release APK to cache then opens installer with APK mime type",
+  "status": "PASS",
+  "detail": "[['download', 'https://example.test/Styly.apk', 'CACHE'], ['open', 'file:///data/cache/Styly-update.apk', 'application/vnd.android.package-archive']]"
+ },
+ {
+  "id": "U5c",
+  "desc": "Native: no service worker registered (unregistered on native)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "U0",
+  "desc": "No page errors",
+  "status": "PASS",
+  "detail": "[]"
+ }
+]

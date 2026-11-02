@@ -66,6 +66,17 @@ jobs:
           EOF
           tail -14 android/app/build.gradle
 
+      # In-app updates: allow the app to ask Android to install the downloaded APK, and give every build an increasing versionCode.
+      - name: Configure install permission and version
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />#' android/app/src/main/AndroidManifest.xml
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$VER\"/" android/app/build.gradle
+          grep -n "REQUEST_INSTALL_PACKAGES" android/app/src/main/AndroidManifest.xml
+          grep -nE "versionCode|versionName" android/app/build.gradle
+          grep -q "REQUEST_INSTALL_PACKAGES" android/app/src/main/AndroidManifest.xml
+          grep -q "versionCode ${{ github.run_number }}" android/app/build.gradle
+
       - name: Apply launcher icons and splash
         run: |
           cp -r resources/android/res/. android/app/src/main/res/
@@ -115,7 +126,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk Styly.apk
+          VER=$(node -p "require('./package.json').version")
           gh release delete latest --yes --cleanup-tag -R "${{ github.repository }}" || true
           gh release create latest Styly.apk -R "${{ github.repository }}" --target "${{ github.sha }}" --latest \
             --title "Styly - آخر نسخة" \
-            --notes "نزّل Styly.apk وثبّته فوق النسخة الموجودة. التحديث مش بيمسح البيانات. بصمة التوقيع (SHA-256): ${{ steps.cert.outputs.sha }}"
+            --notes "Styly-Version: $VER
+نزّل Styly.apk وثبّته فوق النسخة الموجودة، أو حدّث من جوه التطبيق (الإعدادات ← التحديثات). التحديث مش بيمسح البيانات. بصمة التوقيع (SHA-256): ${{ steps.cert.outputs.sha }}"

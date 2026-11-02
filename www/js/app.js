@@ -2,7 +2,7 @@
 const LB='styly-last-backup';
 const lastBackup=()=>{try{return +localStorage.getItem(LB)||0}catch(e){return 0}};
 function markBackup(){try{localStorage.setItem(LB,String(Date.now()))}catch(e){}updateDot()}
-function updateDot(){$('#setBtn').classList.toggle('dot',items.length>0&&(Date.now()-lastBackup()>14*864e5))}
+function updateDot(){$('#setBtn').classList.toggle('dot',(items.length>0&&(Date.now()-lastBackup()>14*864e5))||upd.state==='available')}
 function nativePlugin(n){const C=window.Capacitor;try{if(C&&C.isNativePlatform&&C.isNativePlatform())return(C.Plugins&&C.Plugins[n])||C.registerPlugin(n)}catch(e){}return null}
 async function buildBackup(){
   return JSON.stringify({app:'styly',v:1,date:new Date().toISOString(),items:await all('items'),outfits:await all('outfits'),plan:await all('plan'),prefs,colorLearning:learned});
@@ -29,7 +29,7 @@ function openSettings(){
   $('#learnInfo').textContent=learned.length?('اتعلّم '+learned.length+' تصحيح لأسماء الألوان'):'لسه مفيش تصحيحات متعلَّمة';
   $('#learnReset').disabled=!learned.length;
   $('#verInfo').textContent='Styly '+APP_VERSION;
-  sheet('settings');
+  renderUpdate();sheet('settings');
 }
 $('#setBtn').onclick=openSettings;
 $('#learnReset').onclick=async()=>{
@@ -74,7 +74,7 @@ $('#bkFile').onchange=async e=>{
 /* ---------- init ---------- */
 (async()=>{
   await openDB();items=await all('items');outfits=await all('outfits');plan=await all('plan');
-  tab('home');updateDot();
+  tab('home');updateDot();checkUpdate(true);
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
   /* the Android app ships its web files inside the APK: a cache-first service worker there only risks showing stale UI */
   const native=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
