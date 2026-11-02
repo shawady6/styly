@@ -7,6 +7,8 @@ def serve(d):
     return subprocess.Popen(['python3','-m','http.server',str(PORT)],cwd=d,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 DUMP="""async()=>{const db=await new Promise(r=>{const q=indexedDB.open('wardrobe');q.onsuccess=()=>r(q.result)});const g=s=>new Promise(r=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>r(q.result)});return{v:db.version,items:await g('items'),outfits:await g('outfits'),plan:await g('plan'),prefs:localStorage.getItem('styly-prefs'),lb:localStorage.getItem('styly-last-backup')}}"""
 res={}
+# old files must look OLDER than the new build, otherwise If-Modified-Since makes the server answer 304 for the new files (a test artifact, not an app issue)
+for _f in os.listdir(OLD): os.utime(os.path.join(OLD,_f),(1600000000,1600000000))
 srv=serve(OLD); time.sleep(1)
 with sync_playwright() as p:
     c=p.chromium.launch_persistent_context(UD,viewport={'width':390,'height':844}); pg=c.new_page(); pg.goto(f'http://localhost:{PORT}/'); pg.wait_for_timeout(1200)

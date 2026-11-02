@@ -1,10 +1,13 @@
 /* Styly core: constants, icons, helpers, theme, IndexedDB, toast / sheet / confirm.
    Data layer is unchanged from v1.2: DB "wardrobe" v2, stores items / outfits / plan. */
-const APP_VERSION='1.3.0';
-const TYPES={top:'قميص / تيشيرت',bottom:'بنطلون / شورت',outer:'جاكيت',shoes:'جزمة',acc:'إكسسوار'};
+const APP_VERSION='1.4.0';
+const TYPES={top:'قميص / تيشيرت',hoodie:'هودي',bottom:'بنطلون / شورت',outer:'جاكيت',shoes:'جزمة',acc:'إكسسوار'};
 const SLOTS=[['top','فوق',false],['bottom','تحت',false],['outer','جاكيت',true],['shoes','جزمة',false]];
 const DAYN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 const DAYS=['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+/* a hoodie takes the shirt/T-shirt place in the outfit: it is chosen in the "top" slot */
+const SLOT_TYPES={top:['top','hoodie'],bottom:['bottom'],outer:['outer'],shoes:['shoes']};
+const slotOf=t=>t==='hoodie'?'top':t;
 const OCCS=['كاجوال','رسمي','رياضي','خروجة'];
 
 /* line icons (24px grid, stroke = currentColor) */
@@ -31,6 +34,7 @@ const P={
   alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/>',
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.01"/>',
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  hoodie:'<path d="M8 3 3 6l2 4 3-1v12h8V9l3 1 2-4-5-3"/><path d="M8 3c0 4 8 4 8 0M12 7.500V11"/>',
   shirt:'<path d="M8 3 3 6l2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0Z"/>',
   pants:'<path d="M7 3h10l1 18h-4.5L12 9l-1.5 12H6Z"/>',
   jacket:'<path d="M9 3 4 6v15h6V9m5-6 5 3v15h-6V9"/><path d="M9 3h6M12 9v12"/>',
@@ -41,7 +45,7 @@ const P={
   auto:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'
 };
 const ic=n=>`<svg viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
-const TYPE_IC={top:'shirt',bottom:'pants',outer:'jacket',shoes:'shoe',acc:'watch'};
+const TYPE_IC={top:'shirt',hoodie:'hoodie',bottom:'pants',outer:'jacket',shoes:'shoe',acc:'watch'};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rnd=a=>a[Math.floor(Math.random()*a.length)];

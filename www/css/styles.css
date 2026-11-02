@@ -301,6 +301,9 @@ input[aria-invalid=true]{border-color:var(--danger)}
 .setrow:last-child{border-bottom:0}
 .settitle{font-size:var(--fs-xs);color:var(--muted);font-weight:600;margin:var(--sp-5) 0 var(--sp-1);letter-spacing:.04em}
 
+.progress{height:8px;border-radius:var(--r-pill);background:var(--tile);overflow:hidden;margin:var(--sp-3) 0 var(--sp-2)}
+.progress i{display:block;height:100%;background:var(--primary);transition:width .2s}
+
 /* confirm dialog */
 .dbg{position:fixed;inset:0;z-index:60;background:var(--scrim);display:none;align-items:center;justify-content:center;padding:var(--gutter)}
 .dbg.show{display:flex}

@@ -14,6 +14,7 @@ def add(pg,f,typ,name='',occ='كاجوال',cname=None):
 with sync_playwright() as p:
     b=p.chromium.launch(); ctx=b.new_context(viewport={'width':390,'height':844},accept_downloads=True); pg=ctx.new_page(); errs=[]
     pg.on('pageerror',lambda e:errs.append(str(e))); pg.on('console',lambda m: m.type=='error' and errs.append(m.text))
+    ctx.route('https://api.github.com/**',lambda r:r.fulfill(status=200,content_type='application/json',headers={'access-control-allow-origin':'*'},body='{"body":"","assets":[]}'))
     pg.goto(URL); pg.wait_for_timeout(500)
     # T2 schema
     s=pg.evaluate("async()=>{const db=await new Promise(r=>{const q=indexedDB.open('wardrobe');q.onsuccess=()=>r(q.result)});return{n:db.name,v:db.version,s:[...db.objectStoreNames].sort(),kp:db.transaction('plan').objectStore('plan').keyPath}}")

@@ -49,3 +49,16 @@ Workflow now builds `feature/**` branches too (preview artifact only; the public
 * The first launch after updating from v1.2 may flash the old UI once and reload itself (service-worker replacement); data is unaffected.
 * Learning is per-device and not synced (cloud sync is out of scope).
 * A name chosen through correction is display-only: scoring still derives from the hex color, by design (scoring unchanged).
+
+## v1.4.0 addendum
+
+### Hoodie (هودي)
+New item type `hoodie`. In the Outfit Builder it is chosen **in the top slot** (it takes the shirt/T-shirt place), via `SLOT_TYPES` / `slotOf()`; scoring code is untouched because the slot key stays `top`. Defaults the season to شتا when picked in the Add form. Existing data and backups are unaffected (a plain string type; no schema change).
+
+### In-app updates (`js/update.js`)
+* On launch (at most every 6 h) and on demand (Settings → التحديثات) the app reads `https://api.github.com/repos/shawady6/styly/releases/latest`. The CI-published release body now contains `Styly-Version: x.y.z`; if it is newer than `APP_VERSION` a card appears on Home, the settings button gets a dot, and Settings shows "حمّل وثبّت".
+* On Android: `@capacitor/filesystem` downloads the APK to cache (with progress), then `@capacitor-community/file-opener` (new dependency, MIT, Capacitor 6) opens it with the package-installer MIME type via its own FileProvider. Android asks once to allow installing from Styly. In a normal browser the button just opens the APK link.
+* Only a version check goes over the network; no user data is sent. Failures are silent at launch.
+* CI now adds `REQUEST_INSTALL_PACKAGES` to the manifest and sets `versionCode` = run number and `versionName` = package version (guarded by greps that fail the build if not applied). The signing key is unchanged, so the update installs over the old app and keeps data.
+* Service worker (`styly-v4`) no longer intercepts cross-origin requests.
+* Bootstrap: this version must be installed manually once; from then on updates can be done in the app.

@@ -99,3 +99,18 @@ python3 tests/phase1/p1_suite.py
 python3 tests/phase1/p1_survival.py          # needs the old build in tests/phase1/.work/old (git show main:www/index.html, sw.js, manifest, icons)
 node tests/phase1/p1_score_eq.js <old index.html> www/js/color.js
 ```
+
+## 6. v1.4.0 additions (hoodie + in-app update) — `tests/v14/v14_suite.py`: 15 / 15 PASS
+
+| ID | Check | Status |
+|---|---|---|
+| H1–H6 | Hoodie type, winter season default, wardrobe filter, hoodie chosen in the *top* slot (replaces the shirt), scored, saved outfits and Home featured outfit work with hoodies | PASS |
+| U1–U2 | Launch check finds a newer release; Home card + settings dot; Settings shows version, size, button | PASS |
+| U3 | Same version → "latest" message | PASS |
+| U4 | Failed check: silent on launch, friendly error on manual check | PASS |
+| U5 | Native flow with **mocked** Filesystem/FileOpener: downloads the release APK to cache, then opens the system installer with the APK MIME type; no service worker on native | PASS (mocked) |
+| U0 | No page errors | PASS |
+
+**NOT TESTED:** the real download + Android package-installer hand-off, the "install unknown apps" permission prompt, and `REQUEST_INSTALL_PACKAGES` / `versionCode` injection in the CI-generated Android project (verified only by the workflow's own grep guards when CI runs). These need a device.
+
+Phase 1 suite (47/47) and survival test were re-run on this build: PASS. Note: the survival script now back-dates the old files; otherwise `If-Modified-Since` made the local test server answer 304 for the new files (a test artifact).

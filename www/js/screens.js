@@ -20,7 +20,7 @@ function tab(n){
   $('#addBtn').classList.toggle('show',n==='wardrobe');
   window.scrollTo(0,0);updateDot();renderCurrent();
 }
-const itemsByType=o=>{const s={};outfitItems(o).forEach(i=>{if(!s[i.type])s[i.type]=i});return s};
+const itemsByType=o=>{const s={};outfitItems(o).forEach(i=>{const k=slotOf(i.type);if(!s[k])s[k]=i});return s};
 const scoreCls=n=>n>=75?'g':n>=55?'m':'b';
 function emptyState(icon,title,text,btn,id){
   return `<div class="em-ic">${ic(icon)}</div><h3>${title}</h3>`+(text?`<p>${text}</p>`:'')+(btn?`<button class="btn" id="${id}" type="button">${btn}</button>`:'');
@@ -63,6 +63,7 @@ function renderHome(){
       <button class="qa" data-go="mix" type="button">${ic('mix')}تركيب طقم</button>
       <button class="qa" data-go="outfits" type="button">${ic('mark')}أطقمي</button>
       <button class="qa" data-go="plan" type="button">${ic('cal')}الأسبوع</button></div></div>`;
+  if(upd.state==='available')h+=`<div class="sec"><div class="note">${ic('up')}<div>في نسخة جديدة من Styly (${esc(upd.info.version)}).<button class="btn sm" id="hUpd" type="button">حدّث دلوقتي</button></div></div></div>`;
   if(due)h+=`<div class="sec"><div class="note">${ic('bak')}<div>${lastBackup()?'عدّى أكتر من أسبوعين على آخر نسخة احتياطية.':'لسه ماعملتش نسخة احتياطية.'}<button class="btn sm ghost" id="hBk" type="button">افتح الإعدادات</button></div></div></div>`;
   h+='</div>';
   el.innerHTML=h;
@@ -71,6 +72,7 @@ function renderHome(){
   const m=$('#hMake');if(m)m.onclick=()=>tab('mix');
   const a=$('#hAll');if(a)a.onclick=()=>tab('wardrobe');
   const b=$('#hBk');if(b)b.onclick=openSettings;
+  const hu=$('#hUpd');if(hu)hu.onclick=openSettings;
   const ft=$('#hFeat');if(ft)ft.onclick=()=>tab(plan.some(p=>p.outfitId===f.o.id&&p.date===iso(new Date()))?'plan':'outfits');
 }
 
@@ -240,7 +242,7 @@ async function editItem(id){
 }
 function drawTypeSeg(){
   $('#typeSeg').innerHTML=Object.entries(TYPES).map(([k,l])=>`<button type="button" data-k="${k}" aria-pressed="${F.type===k}" class="${F.type===k?'on':''}">${l}</button>`).join('');
-  $('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{F.type=b.dataset.k;drawTypeSeg()});
+  $('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{F.type=b.dataset.k;if(F.type==='hoodie'&&!F.base)$('#season').value='شتا';drawTypeSeg()});
 }
 async function choose(src){
   const url=await getPhoto(src);if(!url)return;
@@ -281,7 +283,7 @@ $('#saveItem').onclick=async()=>{
 
 /* ---------- mix ---------- */
 let mixOcc='all',outOcc='all';
-const pool=t=>items.filter(i=>i.type===t&&(mixOcc==='all'||i.occ===mixOcc));
+const pool=t=>items.filter(i=>SLOT_TYPES[t].includes(i.type)&&(mixOcc==='all'||i.occ===mixOcc));
 const curSel=()=>{const s={};SLOTS.forEach(([t])=>{const i=byId(pick[t]);if(i)s[t]=i});return s};
 function ring(score){
   const C=2*Math.PI*29,off=C*(1-score/100);
@@ -292,7 +294,7 @@ function renderMix(){
   const miss=[];
   $('#slots').innerHTML=SLOTS.map(([t,l,opt])=>{
     const list=pool(t),cur=byId(pick[t]);
-    const noneAtAll=!items.some(i=>i.type===t);
+    const noneAtAll=!items.some(i=>SLOT_TYPES[t].includes(i.type));
     let body;
     if(cur)body=`<div class="pic">${imgTag(cur)}</div>`;
     else if(!list.length)body=`<div class="ph">${ic(TYPE_IC[t])}<span>${mixOcc!=='all'&&!noneAtAll?'مفيش '+l+' '+esc(mixOcc):'مفيش '+l+' في الدولاب'}</span><button type="button" data-add="${t}">+ ضيف ${l}</button></div>`;
