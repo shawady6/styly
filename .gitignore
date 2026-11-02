@@ -2,3 +2,6 @@ node_modules/
 /android/
 *.keystore
 *.jks
+
+tests/phase1/.work/
+tests/phase1/images/p1_*.json

@@ -30,3 +30,6 @@
 
 ## تجربة سريعة (PWA)
 ارفع مجلد `www/` على GitHub Pages وافتح الرابط من Chrome ثم "Add to Home Screen".
+
+## Docs (Phase 1)
+`docs/DESIGN_SYSTEM.md` · `docs/TECHNICAL_REPORT.md` · `docs/TESTING_REPORT.md` · `docs/screenshots/` · tests in `tests/phase1/`.
