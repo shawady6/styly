@@ -128,7 +128,6 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk Styly.apk
           VER=$(node -p "require('./package.json').version")
           gh release delete latest --yes --cleanup-tag -R "${{ github.repository }}" || true
+          NOTES=$(printf 'Styly-Version: %s\n%s' "$VER" "نزّل Styly.apk وثبّته فوق النسخة الموجودة، أو حدّث من جوه التطبيق (الإعدادات ← التحديثات). التحديث مش بيمسح البيانات. بصمة التوقيع (SHA-256): ${{ steps.cert.outputs.sha }}")
           gh release create latest Styly.apk -R "${{ github.repository }}" --target "${{ github.sha }}" --latest \
-            --title "Styly - آخر نسخة" \
-            --notes "Styly-Version: $VER
-نزّل Styly.apk وثبّته فوق النسخة الموجودة، أو حدّث من جوه التطبيق (الإعدادات ← التحديثات). التحديث مش بيمسح البيانات. بصمة التوقيع (SHA-256): ${{ steps.cert.outputs.sha }}"
+            --title "Styly - آخر نسخة" --notes "$NOTES"
