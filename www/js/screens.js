@@ -78,7 +78,8 @@ function renderHome(){
 
 /* ---------- wardrobe ---------- */
 let wq='',wocc='all';
-function renderWardrobe(){
+function renderWardrobe(){showWsec();if(wsec==='mine')renderMine()}
+function renderMine(){
   const cnt=k=>k==='all'?items.length:items.filter(i=>i.type===k).length;
   $('#filters').innerHTML=[['all','الكل'],...Object.entries(TYPES)].map(([k,l])=>`<button data-k="${k}" role="tab" aria-selected="${filter===k}" class="${filter===k?'on':''}">${l}<small>${cnt(k)}</small></button>`).join('');
   $('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.k;renderWardrobe()});
@@ -95,7 +96,7 @@ function renderWardrobe(){
   $('#filters').classList.toggle('hide',!items.length);$('#wOcc').classList.toggle('hide',!items.length);document.querySelector('#v-wardrobe .search').classList.toggle('hide',!items.length);
   $('#addBtn').classList.toggle('show',curTab==='wardrobe');
 }
-$('#q').addEventListener('input',e=>{wq=e.target.value;renderWardrobe()});
+$('#q').addEventListener('input',e=>{wq=e.target.value;renderMine()});
 $('#addBtn').onclick=()=>newItem();
 function drawChips(el,cur,cb){
   el.innerHTML=[['all','كل المناسبات'],...OCCS.map(o=>[o,o])].map(([k,l])=>`<button class="chip ${cur===k?'on':''}" data-k="${k}" type="button" aria-pressed="${cur===k}">${l}</button>`).join('');
@@ -224,9 +225,11 @@ function resetForm(){
   $('#name').value='';$('#season').value='كل السنة';$('#occ').value='كاجوال';$('#pattern').value='سادة';
   showErr('');$('#saveItem').disabled=false;$('#saveItem').textContent='حفظ القطعة';
 }
-function newItem(presetType){
+function newItem(presetType,preset){
   resetForm();F.type=TYPES[presetType]?presetType:'top';
   $('#formTitle').textContent='قطعة جديدة';
+  if(F.type==='hoodie')$('#season').value='شتا';
+  if(preset){if(preset.name)$('#name').value=preset.name;if(preset.color){F.color=preset.color;F.colorSrc='manual'}}
   drawTypeSeg();paintStage();syncColor();sheet('form');
 }
 async function editItem(id){

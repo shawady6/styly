@@ -62,3 +62,21 @@ New item type `hoodie`. In the Outfit Builder it is chosen **in the top slot** (
 * CI now adds `REQUEST_INSTALL_PACKAGES` to the manifest and sets `versionCode` = run number and `versionName` = package version (guarded by greps that fail the build if not applied). The signing key is unchanged, so the update installs over the old app and keeps data.
 * Service worker (`styly-v4`) no longer intercepts cross-origin requests.
 * Bootstrap: this version must be installed manually once; from then on updates can be done in the app.
+
+## v1.5.0 addendum — Wardrobe expansion
+
+**Navigation.** `#v-wardrobe` now has a sticky 4-button bar (ملابسي / محتاج إيه؟ / اشتري إيه؟ / مقاساتي) built with the existing tokens (`.subnav`, active = `--accent`). One panel is visible at a time; no routes, no reload. The current section is kept in `sessionStorage['styly-wsec']`. `www/js/wardrobe.js` holds the section logic; `renderWardrobe()` in `screens.js` only delegates (old body kept as `renderMine()`).
+
+**Shared analysis service (`www/js/analyze.js`)** — one engine for both features, built on the existing `outfitScore`/`pairScore`/`RULES`/`FORM`/learned prefs (scoring source is unchanged; `p1_score_eq.js`: 0 mismatches). Rules:
+- An outfit = top(top|hoodie) × bottom × shoes (+ optional outer). Accepted only if `outfitScore ≥ 70` (GOOD), formality spread < 2, no summer+winter mix. Layered outfits are only tried when the core is already good.
+- Duplicates are removed by a signature (slot → colour/occasion/pattern/season), so identical-looking pieces don't inflate counts.
+- Value of a virtual piece = comparison of the wardrobe **before** vs **after** simulating it: `new_outfits*10 + unlocked_items*8 + touched_items*2 + avg_score/10`. A suggestion needs ≥ 3 new outfits (MIN_NEW); at most 5 suggestions, ≤ 2 per type. Enumeration is capped (CAP=30 per slot) and memoised (66 items: needs ≈ 0.8 s, buy ≈ 70 ms in desktop Chromium).
+- Data level: `none` (<4 items), `limited` (a core slot missing or <8 items) → the UI says the analysis is limited; otherwise `ok`.
+- Virtual pieces use id `-1`, are never written to IndexedDB. A real piece is created only after an explicit confirmation dialog.
+- This is rule-based scoring, not AI/ML, and the UI doesn't claim otherwise.
+
+**Measurements.** Stored separately from clothes in `localStorage['styly-measurements']` (`{pants:{waist,hip,thigh,leg}, shirt:{chest,length}, hoodie:{chest,sleeve,length}, jacket:{chest,shoulder,sleeve,length}}`, cm, 0 < v ≤ 250, 0.1 precision). Rationale: IndexedDB `wardrobe` v2 stays untouched (no migration needed, zero risk to existing data). Accordion cards are closed by default and independent.
+
+**Backup/Restore.** Backup now includes `measurements`. Restore applies it only when present, so old backups still restore (and don't wipe measurements). Backup format otherwise unchanged.
+
+**Other.** `APP_VERSION` 1.5.0, SW cache `styly-v5` (+ new files), `newItem(type, preset)` accepts a preset used by "add this piece".

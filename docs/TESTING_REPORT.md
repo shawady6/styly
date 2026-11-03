@@ -114,3 +114,18 @@ node tests/phase1/p1_score_eq.js <old index.html> www/js/color.js
 **NOT TESTED:** the real download + Android package-installer hand-off, the "install unknown apps" permission prompt, and `REQUEST_INSTALL_PACKAGES` / `versionCode` injection in the CI-generated Android project (verified only by the workflow's own grep guards when CI runs). These need a device.
 
 Phase 1 suite (47/47) and survival test were re-run on this build: PASS. Note: the survival script now back-dates the old files; otherwise `If-Modified-Since` made the local test server answer 304 for the new files (a test artifact).
+
+## 7. v1.5.0 — Wardrobe expansion — `tests/v15/v15_suite.py`: 49 / 49 PASS
+
+| Area | Checks | Status |
+|---|---|---|
+| Navigation N1–N8 | 4 buttons always visible, order, one panel at a time, active = yellow, no reload, state kept after leaving/returning, mobile | PASS |
+| محتاج إيه؟ M1–M10 | analysis runs, missing pieces found, new-outfit counts, ranking, reasons + example outfits, nothing saved, low-data and empty wardrobe show "limited" | PASS (M10 uses a stubbed GitHub API; unrelated to analysis) |
+| اشتري إيه؟ B1–B9 | type pick, 2 and 3 colours, max 3, ranking + best colour, counts, examples, not saved, saved only after confirm | PASS |
+| مقاساتي S1–S12 | 4 groups, closed by default, independent open/close, all 13 fields, save/edit, validation, persistence after tab switch and reload | PASS |
+| Backup K1–K4 | export includes measurements, restore new backup, restore **old** backup without measurements (clothes kept) | PASS |
+| V1 / E1 | no overflow or clipped labels at 320/360/390/430/768/1280, no console errors | PASS |
+
+Regression re-run on this build: Phase 1 suite 47/47 PASS (add/edit/delete, outfits, backup, offline reload), v1.4.0 suite 15/15 PASS, upgrade-survival test (old data opens in new build) PASS, scoring equivalence 0 mismatches.
+
+**NOT TESTED / limits:** real Android device (camera, share sheet, installer, WebView rendering, touch, TalkBack); the reference screenshot mentioned in the brief was not received, so the bar follows the existing design tokens and the textual description; suggestion quality on real wardrobes was only checked with synthetic data.
