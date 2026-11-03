@@ -1,0 +1,296 @@
+[
+ {
+  "id": "N1",
+  "desc": "Four buttons always visible (all sections), labels in required order",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N2",
+  "desc": "Each button shows only its own section",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N3",
+  "desc": "Active button is Styly yellow; inactive buttons are not",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N4",
+  "desc": "No page reload when switching sections",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N5",
+  "desc": "Section state kept when leaving and returning to Wardrobe",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N6",
+  "desc": "Section remembered within the session after reload",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N7a",
+  "desc": "\"ملابسي\": add button + search + grid present",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N7b",
+  "desc": "Add-clothing header button hidden outside \"ملابسي\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N7c",
+  "desc": "\"ملابسي\" keeps its search state when returning",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "N8",
+  "desc": "Sub-navigation stays pinned below the header while scrolling",
+  "status": "PASS",
+  "detail": "(81, 81)"
+ },
+ {
+  "id": "M1",
+  "desc": "Analysis renders ranked suggestions, each with reason, examples and counts",
+  "status": "PASS",
+  "detail": "5"
+ },
+ {
+  "id": "M2",
+  "desc": "Virtual pieces are not saved (DB unchanged after analysis)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "M3",
+  "desc": "Reported new-outfit count equals recount of the wardrobe before/after adding the piece",
+  "status": "PASS",
+  "detail": "[[8, 8], [8, 8], [4, 4], [4, 4], [4, 4]]"
+ },
+ {
+  "id": "M4",
+  "desc": "Suggestions ranked by value (descending), no more than 5",
+  "status": "PASS",
+  "detail": "[99, 99, 59, 58.9, 57.3]"
+ },
+ {
+  "id": "M5",
+  "desc": "No duplicate (type,color) suggestions and all create >= MIN_NEW outfits",
+  "status": "PASS",
+  "detail": "['shoesأسود', 'shoesبوردو', 'outerبوردو', 'outerأبيض', 'topأسود']"
+ },
+ {
+  "id": "M6",
+  "desc": "Every example is a valid (score>=70, logical) outfit that does not already exist",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "M7a",
+  "desc": "Adding a suggestion asks for explicit confirmation first",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "M7b",
+  "desc": "Cancel adds nothing and opens nothing",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "M7c",
+  "desc": "Confirm opens Add form with type/color preset; nothing saved yet",
+  "status": "PASS",
+  "detail": "جزمة أسود"
+ },
+ {
+  "id": "M8",
+  "desc": "Tiny wardrobe (3 items): clear \"analysis unavailable\" message, no suggestions",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "M9",
+  "desc": "Limited wardrobe (5 items, no shoes): shows \"analysis limited\" notice naming what is missing",
+  "status": "PASS",
+  "detail": "محتاج إيه؟\n\nبجرّب قطع افتراضية على دولابك (من غير ما أحفظ حاجة) وأشوف كام طقم جديد حقيقي هتفتحه.\n\nالتحليل محدود. مفيش عندك: جزمة. عدد القطع (5) قليل. النتايج تق"
+ },
+ {
+  "id": "M10",
+  "desc": "Balanced wardrobe path: says nothing needed instead of filling the screen (UI path, engine stubbed)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B1",
+  "desc": "Buy: item types selectable",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B2",
+  "desc": "Needs at least 2 colors (inline error)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B3",
+  "desc": "Two-color comparison: results ranked, new-outfit counts shown per color",
+  "status": "PASS",
+  "detail": "[['أسود', 4, 57.2], ['بوردو', 4, 57]]"
+ },
+ {
+  "id": "B4",
+  "desc": "Three-color comparison works and is sorted by value",
+  "status": "PASS",
+  "detail": "[['أسود', 4, 57.2], ['بوردو', 4, 57], ['خردلي', 4, 57]]"
+ },
+ {
+  "id": "B5",
+  "desc": "Fourth color refused (max 3)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B6",
+  "desc": "Best color is stated with a reason, and examples shown per color",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B7",
+  "desc": "Each color's count equals a real before/after recount",
+  "status": "PASS",
+  "detail": "[[4, 4], [4, 4], [4, 4]]"
+ },
+ {
+  "id": "B8",
+  "desc": "Comparison does not save anything",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "B9",
+  "desc": "Item saved only after confirm + photo + save (count +1); stays in \"اشتري إيه؟\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S1",
+  "desc": "Four independent accordion cards, all closed by default, \"+\" shown",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S2",
+  "desc": "Opening one group does not close another; icon becomes \"−\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S3",
+  "desc": "Closing a group closes only that group",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S4",
+  "desc": "Exactly the required fields per group (4/2/3/4), numeric, nothing extra",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S5",
+  "desc": "Field labels are the requested Arabic names, all in cm",
+  "status": "PASS",
+  "detail": "{'pants': ['الوسط (cm)', 'الهيب (cm)', 'الفخذ (cm)', 'الرجل (cm)'], 'shirt': ['عرض الصدر (cm)', 'الطول (cm)'], 'hoodie': ['عرض الصدر (cm)', 'طول الكم (cm)', 'طول الهودي (cm)'], 'jacket': ['عرض الصدر (cm)', 'عرض الكتف (cm)', 'طول الكم (cm)', 'طول الجاكيت (cm)']}"
+ },
+ {
+  "id": "S6",
+  "desc": "All four groups save and store the typed values",
+  "status": "PASS",
+  "detail": "{'pants': {'waist': 82, 'hip': 98.5, 'thigh': 60, 'leg': 44}, 'shirt': {'chest': 54, 'length': 72}, 'hoodie': {'chest': 58, 'sleeve': 63, 'length': 68}, 'jacket': {'chest': 56, 'shoulder': 46, 'sleeve': 64, 'length': 74}}"
+ },
+ {
+  "id": "S7",
+  "desc": "Edit + save updates only that value",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S8",
+  "desc": "Invalid values (negative / too large) are rejected with a message; saved data kept",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S9",
+  "desc": "Clearing a field and saving removes it",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S10",
+  "desc": "Values survive navigation",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S11",
+  "desc": "Values survive app reload; groups closed again after reload",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "S12",
+  "desc": "Measurements are separate from clothing records (items/outfits/plan unchanged)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "K1",
+  "desc": "Backup keeps v1 format and now includes measurements",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "K2",
+  "desc": "Restoring an old backup (no measurements) keeps the existing measurements and restores clothes",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "K3",
+  "desc": "Cancelling restore changes nothing (confirmation kept)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "K4",
+  "desc": "Restore with measurements replaces them and refreshes the form",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "V1",
+  "desc": "No horizontal overflow and no clipped sub-nav labels at 320/360/390/430/768/1280 in all four sections",
+  "status": "PASS",
+  "detail": "[]"
+ },
+ {
+  "id": "E1",
+  "desc": "No console/page errors",
+  "status": "PASS",
+  "detail": "[]"
+ }
+]

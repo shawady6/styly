@@ -1,6 +1,6 @@
 /* Styly core: constants, icons, helpers, theme, IndexedDB, toast / sheet / confirm.
    Data layer is unchanged from v1.2: DB "wardrobe" v2, stores items / outfits / plan. */
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 const TYPES={top:'قميص / تيشيرت',hoodie:'هودي',bottom:'بنطلون / شورت',outer:'جاكيت',shoes:'جزمة',acc:'إكسسوار'};
 const SLOTS=[['top','فوق',false],['bottom','تحت',false],['outer','جاكيت',true],['shoes','جزمة',false]];
 const DAYN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];

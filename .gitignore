@@ -5,3 +5,4 @@ node_modules/
 
 tests/phase1/.work/
 tests/phase1/images/p1_*.json
+tests/v15/bk_*.json

@@ -31,11 +31,17 @@
 <section id="v-home" aria-label="الرئيسية"></section>
 
 <section id="v-wardrobe" class="hide" aria-label="الدولاب">
-  <div class="search"><span aria-hidden="true" id="searchIc"></span><input type="search" id="q" placeholder="ابحث بالاسم أو اللون" aria-label="بحث في الدولاب" autocomplete="off"></div>
-  <div class="filters" id="filters" style="margin-top:12px" role="tablist" aria-label="نوع القطعة"></div>
-  <div class="chips" id="wOcc" aria-label="المناسبة"></div>
-  <div class="grid" id="grid"></div>
-  <div class="empty hide" id="empty"></div>
+  <div class="subnav" id="wnav" role="tablist" aria-label="أقسام الدولاب"></div>
+  <div id="w-mine" role="tabpanel" aria-labelledby="wn-mine">
+    <div class="search"><span aria-hidden="true" id="searchIc"></span><input type="search" id="q" placeholder="ابحث بالاسم أو اللون" aria-label="بحث في الدولاب" autocomplete="off"></div>
+    <div class="filters" id="filters" style="margin-top:12px" role="tablist" aria-label="نوع القطعة"></div>
+    <div class="chips" id="wOcc" aria-label="المناسبة"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty hide" id="empty"></div>
+  </div>
+  <div id="w-need" class="hide" role="tabpanel" aria-labelledby="wn-need"></div>
+  <div id="w-buy" class="hide" role="tabpanel" aria-labelledby="wn-buy"></div>
+  <div id="w-sizes" class="hide" role="tabpanel" aria-labelledby="wn-sizes"></div>
 </section>
 
 <section id="v-mix" class="hide" aria-label="تركيب الطقم">
@@ -181,6 +187,8 @@
 <script src="js/core.js"></script>
 <script src="js/color.js"></script>
 <script src="js/screens.js"></script>
+<script src="js/analyze.js"></script>
+<script src="js/wardrobe.js"></script>
 <script src="js/update.js"></script>
 <script src="js/app.js"></script>
 </body>
