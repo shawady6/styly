@@ -1,0 +1,116 @@
+[
+ {
+  "id": "C1",
+  "desc": "Still exactly 4 built-in cards, closed by default, plus an add-item box",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C2",
+  "desc": "New measurement added to pants (5 fields), group stays open",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C3",
+  "desc": "Extra field value + built-in value saved in localStorage",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C4",
+  "desc": "Duplicate / empty field names rejected (incl. built-in name)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C5",
+  "desc": "Unsaved typed values are kept when a field is added",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C6",
+  "desc": "New item card created (5 cards), opened, empty-state hint shown",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C7",
+  "desc": "Three measurements added to the custom item",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C8",
+  "desc": "Custom item saved with name, fields and values (cm)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C9",
+  "desc": "Closing pants does not close the custom item",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C10",
+  "desc": "After reload: custom item, extra fields and values persist",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C11",
+  "desc": "Deleting a custom field (with confirm) removes it and its value",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C12",
+  "desc": "Cancel keeps the field; confirm deletes it; built-in fields have no delete button",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C13",
+  "desc": "Backup contains custom items and extra fields",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C14",
+  "desc": "Restored measurements recreate the custom item",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C15",
+  "desc": "v1.5.0-format data (no extra/items) loads unchanged",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C16",
+  "desc": "Deleting a custom item removes the card",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C17",
+  "desc": "Item names are escaped (no HTML injection)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C18",
+  "desc": "No horizontal overflow at 320–1280 with the new controls",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "C19",
+  "desc": "No console/page errors",
+  "status": "PASS",
+  "detail": "[]"
+ }
+]

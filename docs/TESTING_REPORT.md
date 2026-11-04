@@ -129,3 +129,8 @@ Phase 1 suite (47/47) and survival test were re-run on this build: PASS. Note: t
 Regression re-run on this build: Phase 1 suite 47/47 PASS (add/edit/delete, outfits, backup, offline reload), v1.4.0 suite 15/15 PASS, upgrade-survival test (old data opens in new build) PASS, scoring equivalence 0 mismatches.
 
 **NOT TESTED / limits:** real Android device (camera, share sheet, installer, WebView rendering, touch, TalkBack); the reference screenshot mentioned in the brief was not received, so the bar follows the existing design tokens and the textual description; suggestion quality on real wardrobes was only checked with synthetic data.
+
+## 8. v1.5.1 — custom items and extra measurements — `tests/v151/v151_suite.py`: 19 / 19 PASS
+
+Adds: new measurement on any existing group, new custom item with its own measurements, delete (with confirm) for extra fields/items, validation (empty/duplicate/length/limits), HTML-escaped names, backup/restore of the new data, v1.5.0 data still loads. Regression re-run: v1.5 49/49 (S4/S5 now scoped to measurement inputs, the built-in fields are unchanged), Phase 1 47/47, v1.4 15/15. Found and fixed during testing: a helper name clashed with the photo-form helper in `screens.js` (caught by the existing suite).
+Limits: C14 restores through `cleanMeasure` + save (the same code the restore path calls), not through the file picker; no real device test.

@@ -159,36 +159,115 @@ const MS_GROUPS=[
   ['hoodie','الهودي',[['chest','عرض الصدر'],['sleeve','طول الكم'],['length','طول الهودي']]],
   ['jacket','الجاكيت',[['chest','عرض الصدر'],['shoulder','عرض الكتف'],['sleeve','طول الكم'],['length','طول الجاكيت']]]
 ];
+const XK=/^x[a-z0-9]{1,12}$/,IDK=/^[a-z0-9]{1,12}$/,MAXI=30,MAXF=20;
+const okVal=v=>typeof v==='number'&&isFinite(v)&&v>0&&v<=250;
+const okLbl=l=>typeof l==='string'&&l.trim().length>0&&l.length<=30;
+const cleanFields=(arr,re)=>Array.isArray(arr)?arr.filter(f=>Array.isArray(f)&&re.test(f[0])&&okLbl(f[1])).slice(0,MAXF).map(f=>[f[0],f[1].trim()]):[];
 function cleanMeasure(o){
-  const out={};
-  for(const [g,,fs] of MS_GROUPS){out[g]={};for(const [k] of fs){const v=o&&o[g]&&o[g][k];if(typeof v==='number'&&isFinite(v)&&v>0&&v<=250)out[g][k]=v}}
+  const out={extra:{},items:[]};
+  for(const [g,,fs] of MS_GROUPS){
+    const ex=cleanFields(o&&o.extra&&o.extra[g],XK);
+    if(ex.length)out.extra[g]=ex;
+    out[g]={};
+    for(const [k] of fs.concat(ex)){const v=o&&o[g]&&o[g][k];if(okVal(v))out[g][k]=v}
+  }
+  if(o&&Array.isArray(o.items))for(const it of o.items.slice(0,MAXI)){
+    if(!it||!IDK.test(it.id)||!okLbl(it.name))continue;
+    const fields=cleanFields(it.fields,IDK),values={};
+    for(const [k] of fields){const v=it.values&&it.values[k];if(okVal(v))values[k]=v}
+    out.items.push({id:it.id,name:it.name.trim(),fields,values});
+  }
   return out;
 }
 let measures=cleanMeasure({});
 try{const x=JSON.parse(localStorage.getItem(MS_KEY)||'null');if(x&&x.data)measures=cleanMeasure(x.data)}catch(e){}
 function saveMeasures(){try{localStorage.setItem(MS_KEY,JSON.stringify({v:1,updated:Date.now(),data:measures}));return true}catch(e){return false}}
-const msOpen={};let msBuilt=false;
+const msOpen={};let msBuilt=false,msDraft={};
+const rid=()=>Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);
+function msDefs(){
+  const a=MS_GROUPS.map(([g,l,fs])=>({g,label:l,fields:fs.map(f=>[f[0],f[1],false]).concat((measures.extra[g]||[]).map(f=>[f[0],f[1],true])),vals:measures[g],custom:false}));
+  return a.concat(measures.items.map(it=>({g:'c_'+it.id,label:it.name,fields:it.fields.map(f=>[f[0],f[1],true]),vals:it.values,custom:true,item:it})));
+}
+function msSnap(){document.querySelectorAll('#w-sizes input[data-g]').forEach(i=>{msDraft[i.dataset.g+'|'+i.dataset.k]=i.value})}
+function msRedraw(){msSnap();renderSizes(true)}
 function renderSizes(force){
   const el=$('#w-sizes');
   if(msBuilt&&!force)return;
   msBuilt=true;
+  const defs=msDefs();
   el.innerHTML=`<div class="page"><h2 class="h1">مقاساتي</h2><p class="sub" style="margin-top:4px">قياساتك الشخصية بالسنتيمتر (cm). بتتحفظ على الجهاز بس.</p><div class="accs">`+
-   MS_GROUPS.map(([g,l,fs])=>{
-     const open=!!msOpen[g],filled=fs.filter(([k])=>measures[g][k]).length;
-     return `<div class="acc" data-g="${g}"><button type="button" class="acc-h" id="ah-${g}" aria-expanded="${open}" aria-controls="ab-${g}"><span>${l}${filled?` <small class="sub">· ${filled}/${fs.length}</small>`:''}</span><span class="acc-i" aria-hidden="true">${open?'−':'+'}</span></button>
-      <div class="acc-b ${open?'':'hide'}" id="ab-${g}" role="region" aria-labelledby="ah-${g}">${fs.map(([k,fl])=>`<div class="fld"><label for="m-${g}-${k}">${fl} <small class="sub">(cm)</small></label><input type="number" inputmode="decimal" step="0.5" min="1" max="250" id="m-${g}-${k}" data-g="${g}" data-k="${k}" value="${measures[g][k]!==undefined?measures[g][k]:''}"></div>`).join('')}
+   defs.map(({g,label:l,fields:fs,vals,custom})=>{
+     const open=!!msOpen[g],filled=fs.filter(([k])=>vals[k]).length;
+     return `<div class="acc" data-g="${g}"><button type="button" class="acc-h" id="ah-${g}" aria-expanded="${open}" aria-controls="ab-${g}"><span>${esc(l)}${filled?` <small class="sub">· ${filled}/${fs.length}</small>`:''}</span><span class="acc-i" aria-hidden="true">${open?'−':'+'}</span></button>
+      <div class="acc-b ${open?'':'hide'}" id="ab-${g}" role="region" aria-labelledby="ah-${g}">${fs.length?'':'<p class="hint">لسه مفيش مقاسات. أضف أول مقاس من تحت.</p>'}${fs.map(([k,fl,x])=>{const dk=g+'|'+k,dv=dk in msDraft?msDraft[dk]:(vals[k]!==undefined?vals[k]:'');return `<div class="fld"><label for="m-${g}-${k}">${esc(fl)} <small class="sub">(cm)</small></label><div class="fld-r"><input type="number" inputmode="decimal" step="0.5" min="1" max="250" id="m-${g}-${k}" data-g="${g}" data-k="${k}" value="${esc(String(dv))}">${x?`<button type="button" class="btn ghost sm" data-delf="${g}" data-k="${k}" aria-label="حذف مقاس ${esc(fl)}">حذف</button>`:''}</div></div>`}).join('')}
       <div class="err hide" id="me-${g}" role="alert"></div>
-      <button type="button" class="btn sm" data-save="${g}" style="margin-top:var(--sp-3)">حفظ مقاسات ${l}</button></div></div>`}).join('')+`</div></div>`;
+      <button type="button" class="btn sm" data-save="${g}" style="margin-top:var(--sp-3)">حفظ مقاسات ${esc(l)}</button>
+      <div class="addf"><label class="f" for="nf-${g}">مقاس جديد لـ${esc(l)}</label><div class="fld-r"><input type="text" id="nf-${g}" maxlength="30" placeholder="مثال: الرقبة" autocomplete="off"><button type="button" class="btn ghost sm" data-addf="${g}">إضافة مقاس</button></div></div>
+      ${custom?`<button type="button" class="btn dan sm" data-deli="${g}" style="margin-top:var(--sp-3)">حذف ${esc(l)}</button>`:''}</div></div>`}).join('')+
+   `</div><div class="addi"><div style="padding:var(--sp-4)"><label class="f" for="ni">عنصر جديد بمقاساته (جاكيت شتوي، بدلة، حذاء...)</label><div class="fld-r"><input type="text" id="ni" maxlength="40" placeholder="اسم العنصر" autocomplete="off"><button type="button" class="btn sm" id="addItem">إضافة عنصر</button></div><div class="err hide" id="ni-err" role="alert"></div></div></div></div>`;
+  msDraft={};
   el.querySelectorAll('.acc-h').forEach(b=>b.onclick=()=>{
     const g=b.closest('.acc').dataset.g;msOpen[g]=!msOpen[g];
     b.setAttribute('aria-expanded',msOpen[g]);b.querySelector('.acc-i').textContent=msOpen[g]?'−':'+';
     $('#ab-'+g).classList.toggle('hide',!msOpen[g]);
   });
   el.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveGroup(b.dataset.save));
+  el.querySelectorAll('[data-addf]').forEach(b=>b.onclick=()=>addField(b.dataset.addf));
+  el.querySelectorAll('[data-delf]').forEach(b=>b.onclick=()=>delField(b.dataset.delf,b.dataset.k));
+  el.querySelectorAll('[data-deli]').forEach(b=>b.onclick=()=>delItem(b.dataset.deli));
+  $('#addItem').onclick=addItem;
+  el.querySelectorAll('input[type=text]').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();(i.id==='ni'?$('#addItem'):i.parentNode.querySelector('[data-addf]')).click()}});
+}
+function msErr(id,msg){const e=$('#'+id);e.innerHTML=ic('alert')+'<span>'+esc(msg)+'</span>';e.classList.remove('hide')}
+function addField(g){
+  const d=msDefs().find(x=>x.g===g),inp=$('#nf-'+g),name=inp.value.trim().replace(/\s+/g,' ');
+  if(!name){msErr('me-'+g,'اكتب اسم المقاس الأول.');return}
+  if(name.length>30){msErr('me-'+g,'الاسم طويل (30 حرف بالكتير).');return}
+  if(d.fields.some(f=>f[1]===name)){msErr('me-'+g,'المقاس ده موجود بالفعل.');return}
+  if(d.fields.length>=MAXF){msErr('me-'+g,'وصلت للحد الأقصى من المقاسات ('+MAXF+').');return}
+  const k=d.custom?rid():'x'+rid(),snap=JSON.stringify(measures);
+  if(d.custom)d.item.fields.push([k,name]);else(measures.extra[g]=measures.extra[g]||[]).push([k,name]);
+  if(!saveMeasures()){measures=cleanMeasure(JSON.parse(snap));toast('ماقدرتش أحفظ المقاس. جرّب تاني.');return}
+  msOpen[g]=true;msRedraw();toast('اتضاف مقاس '+name);
+  setTimeout(()=>{const n=$('#m-'+g+'-'+k);if(n)n.focus()},0);
+}
+function delField(g,k){
+  const d=msDefs().find(x=>x.g===g),f=d&&d.fields.find(x=>x[0]===k);if(!f)return;
+  askConfirm('تحذف مقاس "'+f[1]+'"؟','القيمة المحفوظة ليه هتتمسح.','احذف',true).then(ok=>{
+    if(!ok)return;
+    const snap=JSON.stringify(measures);
+    if(d.custom){d.item.fields=d.item.fields.filter(x=>x[0]!==k);delete d.item.values[k]}
+    else{measures.extra[g]=(measures.extra[g]||[]).filter(x=>x[0]!==k);delete measures[g][k];if(!measures.extra[g].length)delete measures.extra[g]}
+    delete msDraft[g+'|'+k];
+    if(!saveMeasures()){measures=cleanMeasure(JSON.parse(snap));toast('ماقدرتش أحفظ التغيير.');return}
+    msRedraw();toast('اتحذف المقاس');
+  });
+}
+function addItem(){
+  const inp=$('#ni'),name=inp.value.trim().replace(/\s+/g,' ');
+  if(!name){msErr('ni-err','اكتب اسم العنصر الأول.');return}
+  if(name.length>40){msErr('ni-err','الاسم طويل (40 حرف بالكتير).');return}
+  if(msDefs().some(d=>d.label===name)){msErr('ni-err','العنصر ده موجود بالفعل.');return}
+  if(measures.items.length>=MAXI){msErr('ni-err','وصلت للحد الأقصى من العناصر ('+MAXI+').');return}
+  const id=rid(),snap=JSON.stringify(measures);
+  measures.items.push({id,name,fields:[],values:{}});
+  if(!saveMeasures()){measures=cleanMeasure(JSON.parse(snap));toast('ماقدرتش أحفظ العنصر. جرّب تاني.');return}
+  msOpen['c_'+id]=true;msRedraw();toast('اتضاف '+name);
+  setTimeout(()=>{const n=$('#nf-c_'+id);if(n)n.focus()},0);
+}
+function delItem(g){
+  const d=msDefs().find(x=>x.g===g);if(!d)return;
+  askConfirm('تحذف "'+d.label+'"؟','العنصر وكل مقاساته هيتمسحوا.','احذف',true).then(ok=>{
+    if(!ok)return;
+    const snap=JSON.stringify(measures);
+    measures.items=measures.items.filter(x=>x!==d.item);
+    if(!saveMeasures()){measures=cleanMeasure(JSON.parse(snap));toast('ماقدرتش أحفظ التغيير.');return}
+    delete msOpen[g];msRedraw();toast('اتحذف '+d.label);
+  });
 }
 function saveGroup(g){
-  const grp=MS_GROUPS.find(x=>x[0]===g),err=$('#me-'+g),next={};let bad=null;
-  for(const [k,l] of grp[2]){
+  const d=msDefs().find(x=>x.g===g),err=$('#me-'+g),next={};let bad=null;
+  for(const [k,l] of d.fields){
     const inp=$('#m-'+g+'-'+k),raw=inp.value.trim().replace(',','.');inp.removeAttribute('aria-invalid');
     if(raw==='')continue;
     const v=parseFloat(raw);
@@ -196,10 +275,11 @@ function saveGroup(g){
   }
   if(bad){err.innerHTML=ic('alert')+'<span>قيمة "'+esc(bad)+'" لازم تكون رقم بين 1 و 250 سم.</span>';err.classList.remove('hide');return}
   err.classList.add('hide');
-  const prev=measures[g];measures[g]=next;
-  if(!saveMeasures()){measures[g]=prev;toast('ماقدرتش أحفظ المقاسات. جرّب تاني.');return}
-  for(const [k] of grp[2]){const inp=$('#m-'+g+'-'+k);inp.value=next[k]!==undefined?next[k]:''}
+  const prev=d.custom?d.item.values:measures[g];
+  if(d.custom)d.item.values=next;else measures[g]=next;
+  if(!saveMeasures()){if(d.custom)d.item.values=prev;else measures[g]=prev;toast('ماقدرتش أحفظ المقاسات. جرّب تاني.');return}
+  for(const [k] of d.fields){const inp=$('#m-'+g+'-'+k);inp.value=next[k]!==undefined?next[k]:''}
   const filled=Object.keys(next).length;
-  $('#ah-'+g+' span:first-child').innerHTML=grp[1]+(filled?` <small class="sub">· ${filled}/${grp[2].length}</small>`:'');
-  toast('اتحفظت مقاسات '+grp[1]);
+  $('#ah-'+g+' span:first-child').innerHTML=esc(d.label)+(filled?` <small class="sub">· ${filled}/${d.fields.length}</small>`:'');
+  toast('اتحفظت مقاسات '+d.label);
 }
