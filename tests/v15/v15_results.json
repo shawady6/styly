@@ -219,7 +219,7 @@
   "id": "S6",
   "desc": "All four groups save and store the typed values",
   "status": "PASS",
-  "detail": "{'pants': {'waist': 82, 'hip': 98.5, 'thigh': 60, 'leg': 44}, 'shirt': {'chest': 54, 'length': 72}, 'hoodie': {'chest': 58, 'sleeve': 63, 'length': 68}, 'jacket': {'chest': 56, 'shoulder': 46, 'sleeve': 64, 'length': 74}}"
+  "detail": "{'extra': {}, 'items': [], 'pants': {'waist': 82, 'hip': 98.5, 'thigh': 60, 'leg': 44}, 'shirt': {'chest': 54, 'length': 72}, 'hoodie': {'chest': 58, 'sleeve': 63, 'length': 68}, 'jacket': {'chest': 56, 'shoulder': 46, 'sleeve': 64, 'length': 74}}"
  },
  {
   "id": "S7",

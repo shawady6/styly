@@ -113,9 +113,9 @@ with sync_playwright() as p:
     for g in ['pants','shirt','jacket']:
         if not pg4.locator(f'#ab-{g}').is_visible(): pg4.click(f'#ah-{g}')
     spec={'pants':['waist','hip','thigh','leg'],'shirt':['chest','length'],'hoodie':['chest','sleeve','length'],'jacket':['chest','shoulder','sleeve','length']}
-    exact=all([i.get_attribute('data-k') for i in pg4.locator(f'#ab-{g} input').element_handles()]==spec[g] for g in spec)
-    rec('S4','Exactly the required fields per group (4/2/3/4), numeric, nothing extra',exact and pg4.locator('.acc input').count()==13)
-    labels={g:pg4.locator(f'#ab-{g} label').all_inner_texts() for g in spec}
+    exact=all([i.get_attribute('data-k') for i in pg4.locator(f'#ab-{g} input[type=number]').element_handles()]==spec[g] for g in spec)
+    rec('S4','Exactly the required fields per group (4/2/3/4), numeric, nothing extra',exact and pg4.locator('.acc input[type=number]').count()==13)
+    labels={g:pg4.locator(f'#ab-{g} .fld label').all_inner_texts() for g in spec}
     rec('S5','Field labels are the requested Arabic names, all in cm',labels['pants'][0].startswith('الوسط') and labels['jacket'][3].startswith('طول الجاكيت') and all('cm' in l for g in labels for l in labels[g]),labels)
     vals={'pants':[82,98.5,60,44],'shirt':[54,72],'hoodie':[58,63,68],'jacket':[56,46,64,74]}
     for g,v in vals.items():
