@@ -38,16 +38,32 @@ function limitedNote(d){
   if(d.level==='limited')return `<div class="note">${ic('info')}<div><b>التحليل محدود.</b> ${d.miss.length?'مفيش عندك: '+d.miss.join('، ')+'. ':''}${d.n<8?'عدد القطع ('+d.n+') قليل. ':''}النتايج تقريبية وهتتحسن كل ما تضيف قطع.</div></div>`;
   return '';
 }
-function addFromSuggestion(type,color,label){
+function addFromSuggestion(type,color,label,occ){
   askConfirm('تضيف القطعة للدولاب؟','هتفتح لك شاشة الإضافة ومعاها النوع واللون. مفيش حاجة بتتحفظ غير لما تختار صورة وتضغط حفظ.','افتح الإضافة').then(ok=>{
-    if(!ok)return;newItem(type,{color,name:label});
+    if(!ok)return;newItem(type,{color,name:label,occ});
   });
 }
 
 /* ---------- محتاج إيه؟ ---------- */
+const ocnt=(n,w)=>n===0?'ولا '+w:n===1?w+' واحد':n+' '+w;
+function gapCard(r){
+  if(!r.gaps)return '';
+  const rows=r.gaps.rows;if(rows.length<2)return '';
+  const max=Math.max(1,r.gaps.max),weak=new Set(r.gaps.gaps.map(g=>g.occ));
+  return `<div class="sec-h" style="margin-top:var(--sp-5)"><h2>أطقمك حسب المناسبة</h2></div><div class="gapc">${rows.map(x=>`<div class="gapr ${weak.has(x.occ)?'weak':''}"><span class="gl">${esc(x.occ)}</span><span class="gbar"><i style="width:${Math.max(3,Math.round(x.n/max*100))}%"></i></span><b>${x.n}</b></div>`).join('')}</div>`+
+    (r.gaps.gaps.length?`<p class="hint">ضعيف: ${r.gaps.gaps.map(g=>esc(g.occ)+' ('+g.n+' بس)').join('، ')} — الاقتراحات تحت بتركّز على سد الفجوة دي.</p>`:`<p class="hint">توزيعك على المناسبات متوازن.</p>`);
+}
+function pivotCard(r){
+  if(!r.base)return '';
+  const pv=pivots(r.base),tile=i=>`<div class="pvt"><div class="pic">${imgTag(i)}</div><small>${esc(i.name||TYPES[i.type])}</small><span class="pill ${pv.n(i)>=3?'g':'b'}">${pv.n(i)} طقم</span></div>`;
+  let h='';
+  if(pv.strong.length)h+=`<div class="sec-h" style="margin-top:var(--sp-5)"><h2>القطع اللي شايلة دولابك</h2></div><div class="pvg">${pv.strong.map(tile).join('')}</div><p class="hint">دي أكتر قطع داخلة في أطقم. لو هتشتري، اشتري حاجة تتلبس معاها.</p>`;
+  if(pv.weak.length)h+=`<div class="sec-h" style="margin-top:var(--sp-5)"><h2>قطع بتتلبس مع قليل</h2></div><div class="pvg">${pv.weak.map(tile).join('')}</div><p class="hint">دي داخلة في طقم واحد أو مفيش. فكّر قبل ما تشتري حاجة شبهها، أو اشتري اللي يكمّلها.</p>`;
+  return h;
+}
 function renderNeed(){
   const el=$('#w-need'),its=items.filter(i=>i.type!=='acc'),d=dataLevel(its);
-  let h=`<div class="page"><h2 class="h1">محتاج إيه؟</h2><p class="sub" style="margin-top:4px">بجرّب قطع افتراضية على دولابك (من غير ما أحفظ حاجة) وأشوف كام طقم جديد حقيقي هتفتحه.</p>`+limitedNote(d);
+  let h=`<div class="page"><h2 class="h1">محتاج إيه؟</h2><p class="sub" style="margin-top:4px">بجرّب قطع افتراضية على دولابك (من غير ما أحفظ حاجة) وأشوف إيه اللي هيسد فجوة حقيقية عندك.</p>`+limitedNote(d);
   if(d.level==='none'){el.innerHTML=h+'</div>';return}
   const base=baseline(its);
   const cnt=k=>base.L[k].length;
@@ -57,28 +73,33 @@ function renderNeed(){
   el.innerHTML=h;
   setTimeout(()=>{   /* let the spinner paint before the heavy loop */
     const r=analyzeNeeds(its),box=$('#needRes');if(!box||wsec!=='need')return;
-    if(!r.suggestions.length){box.innerHTML=`<div class="note">${ic('check')}<div><b>دولابك متوازن.</b> مفيش قطعة هتفتح ${MIN_NEW} أطقم جديدة أو أكتر بتناسق كويس، ومش هقترح حاجة لمجرد الملء.</div></div>`;return}
-    box.innerHTML=`<div class="sec-h"><h2>الأنسب تضيفه (حسب القيمة)</h2></div><div class="outs" style="padding:0">`+r.suggestions.map((s,n)=>suggestionCard(s,n+1,r.base)).join('')+'</div>';
-    box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addFromSuggestion(b.dataset.t,b.dataset.c,b.dataset.l));
+    let o=gapCard(r);
+    if(r.suggestions.length)o+=`<div class="sec-h" style="margin-top:var(--sp-5)"><h2>الأهم تشتريه</h2></div><div class="outs" style="padding:0">`+r.suggestions.map((s,n)=>suggestionCard(s,n+1,r.base)).join('')+'</div>';
+    else{
+      o+=`<div class="note" style="margin-top:var(--sp-4)">${ic('check')}<div><b>دولابك متوازن.</b> مفيش فجوة في مناسبة ولا نوع ناقص، ومش هقترح حاجة لمجرد الملء.${r.boosts&&r.boosts.length?' لو لسه عايز تزوّد، دي أحسن إضافة:':''}</div></div>`;
+      if(r.boosts&&r.boosts.length)o+=`<div class="outs" style="padding:0;margin-top:var(--sp-3)">`+r.boosts.map((s,n)=>suggestionCard(s,n+1,r.base)).join('')+'</div>';
+    }
+    box.innerHTML=o+pivotCard(r);
+    box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addFromSuggestion(b.dataset.t,b.dataset.c,b.dataset.l,b.dataset.o));
   },30);
 }
+/* plain-language reason: what gap it fills, with before -> after, not just a count */
 function reasonOf(s,base,its){
-  const p=[];
+  const p=[],w=SLOT_LBL[slotKey(s.v.type)];
   if(base.count===0)p.push('دلوقتي مفيش ولا طقم كامل مقبول');
-  p.push(`هتفتح <b>${s.count}</b> طقم جديد حقيقي بمتوسط تناسق ${s.avg}%`);
-  if(s.unlocked)p.push(`وهتشغّل ${s.unlocked} قطعة مش داخلة في أي طقم حاليًا`);
-  const k=slotKey(s.v.type),n=base.L[k].length;
-  if(n<=2)p.push(`وعندك ${n?'':'ولا '}${SLOT_LBL[k]}${n?' ('+n+') بس':''}`);
-  if(s.repeats)p.push(`(${s.repeats} تركيبة مكررة اتشالت من الحساب)`);
-  if(occasionsKnown(its))p.push(`مناسبة للـ ${esc(s.v.occ)}`);
+  if(s.kind==='gap'||s.gapGain)p.push(`بتسد فجوة في أطقم <b>${esc(s.occ)}</b>: عندك ${s.before?'<b>'+s.before+'</b> طقم':'ولا طقم'}، وهتبقى <b>${s.before+s.gapGain}</b>`);
+  else if(s.kind==='slot')p.push(`عندك ${ocnt(s.have,w)} بس، والقطعة دي هتفتح <b>${s.count}</b> طقم جديد`);
+  else p.push(`هتفتح <b>${s.count}</b> طقم جديد بمتوسط تناسق ${s.avg}%`);
+  if(s.unlocked)p.push(`وهتشغّل ${s.unlocked} قطعة واقفة مش داخلة في أي طقم`);
   return p.join('، ')+'.';
 }
 function suggestionCard(s,rank,base){
-  const its=items.filter(i=>i.type!=='acc');
-  return `<div class="out"><div class="hd"><b><span class="rk">${rank}</span> <i class="dotc" style="background:${s.v.color};display:inline-block;vertical-align:-1px"></i> ${esc(TYPES[s.v.type])} ${esc(s.label)}</b><span class="pill g">+${s.count} طقم</span></div>
+  const its=items.filter(i=>i.type!=='acc'),name=kindLabel(s.v.type,s.occ)+' '+s.label;
+  return `<div class="out"><div class="hd"><b><span class="rk">${rank}</span> <i class="dotc" style="background:${s.v.color};display:inline-block;vertical-align:-1px"></i> ${esc(name)}</b><span class="pill g">+${s.count} طقم</span></div>
     <p class="sub" style="margin-bottom:var(--sp-3)">${reasonOf(s,base,its)}</p>
+    ${s.alts&&s.alts.length?`<p class="hint" style="margin-top:0">ألوان بديلة بنفس القيمة تقريبًا: ${s.alts.map(esc).join('، ')}</p>`:''}
     ${s.examples.map(o=>`<div style="margin-bottom:var(--sp-3)">${outfitRow(o)}<p class="hint">${exNames(o)} · ${o.score}%</p></div>`).join('')}
-    <button class="btn ghost sm" data-add="1" data-t="${s.v.type}" data-c="${s.v.color}" data-l="${esc(TYPES[s.v.type]+' '+s.label)}" type="button">${ic('plus')}<span>ضيفها للدولاب</span></button></div>`;
+    <button class="btn ghost sm" data-add="1" data-t="${s.v.type}" data-c="${s.v.color}" data-o="${esc(s.occ)}" data-l="${esc(name)}" type="button">${ic('plus')}<span>ضيفها للدولاب</span></button></div>`;
 }
 
 /* ---------- اشتري إيه؟ ---------- */
@@ -93,13 +114,13 @@ function renderBuy(){
   h+=`<div class="f-l" id="bTl">نوع القطعة</div><div class="seg" id="bType" role="group" aria-labelledby="bTl">${BUY_TYPES.map(k=>`<button type="button" data-k="${k}" aria-pressed="${buy.type===k}" class="${buy.type===k?'on':''}">${TYPES[k]}</button>`).join('')}</div>
     <div class="f-l" id="bCl">الألوان اللي محتار بينها (2 أو 3) — اخترت ${buy.cols.length}</div>
     <div class="swgrid" id="bCols" role="group" aria-labelledby="bCl">${BUY_COLORS.map(c=>`<button type="button" class="sws ${buy.cols.includes(c.label)?'on':''}" data-l="${esc(c.label)}" aria-pressed="${buy.cols.includes(c.label)}"><i style="background:${c.h}"></i><span>${esc(c.label)}</span></button>`).join('')}</div>
-    <div class="two"><div><label class="f" for="bOcc">المناسبة</label><select id="bOcc"><option value="auto">أنسب مناسبة (تلقائي)</option>${OCCS.map(o=>`<option ${buy.occ===o?'selected':''}>${o}</option>`).join('')}</select></div>
+    <div class="two"><div><label class="f" for="bOcc">نوع القطعة / الاستخدام</label><select id="bOcc"><option value="auto">أنسب استخدام (تلقائي)</option>${occsFor(buy.type).map(o=>`<option value="${o}">${esc(kindLabel(buy.type,o))}</option>`).join('')}</select></div>
     <div><label class="f" for="bSea">الموسم</label><select id="bSea"><option value="auto">حسب النوع</option>${['كل السنة','صيف','شتا','مواسم انتقالية'].map(o=>`<option ${buy.season===o?'selected':''}>${o}</option>`).join('')}</select></div></div>
     <div class="err hide" id="bErr" role="alert"></div>
     <button class="btn" id="bGo" type="button" style="margin-top:var(--sp-4)">${ic('mix')}<span>قارن الألوان</span></button><div id="bRes" class="sec"></div></div>`;
   el.innerHTML=h;
   $('#bOcc').value=buy.occ;$('#bSea').value=buy.season;
-  $('#bType').querySelectorAll('button').forEach(b=>b.onclick=()=>{buy.type=b.dataset.k;buy.res=null;renderBuy()});
+  $('#bType').querySelectorAll('button').forEach(b=>b.onclick=()=>{buy.type=b.dataset.k;if(!occsFor(buy.type).includes(buy.occ))buy.occ='auto';buy.res=null;renderBuy()});
   $('#bCols').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     const l=b.dataset.l,i=buy.cols.indexOf(l);
     if(i>=0)buy.cols.splice(i,1);else if(buy.cols.length>=3){toast('أقصى حاجة 3 ألوان');return}else buy.cols.push(l);
@@ -121,32 +142,36 @@ function runBuy(){
     const r=$('#bRes');if(r)r.scrollIntoView({behavior:'smooth',block:'start'});
   },30);
 }
-function buyReason(best,second,base){
+function buyReason(best,second,base,use){
   let t=`${best.label} هتفتح <b>${best.count}</b> طقم جديد (متوسط تناسق ${best.avg}%)`;
+  if(best.gapGain)t+=`، وبتسد فجوة في أطقم ${esc(use)} (عندك ${best.before||'ولا'} طقم، هتبقى ${best.before+best.gapGain})`;
   if(second&&best.count>second.count)t+=` — أكتر من ${second.label} بـ ${best.count-second.count}`;
   else if(second&&best.count===second.count)t+=` — بنفس عدد ${second.label} لكن تناسقها وتنوعها أحسن`;
   if(best.unlocked)t+=`، وبتشغّل ${best.unlocked} قطعة مش داخلة في أي طقم`;
   return t+'.';
 }
+const verdictOf=b=>b.gapGain&&b.before<2?['g','بتسد فجوة مهمة']:b.count>=8?['g','إضافة قوية']:b.count>=3?['m','إضافة معقولة']:['b','إضافة ضعيفة — فكّر تاني'];
 function drawBuyRes(){
   const r=buy.res,box=$('#bRes');if(!box||!r)return;
-  const best=r.results[0],second=r.results[1];
+  const best=r.results[0],second=r.results[1],use=r.use,kn=kindLabel(r.type,use);
   if(r.results.every(x=>x.count===0)){
-    box.innerHTML=`<div class="note">${ic('info')}<div><b>مفيش لون فيهم هيفتح أطقم جديدة.</b> ممكن لأن ${TYPES[r.type]} متكرر عندك بنفس الألوان، أو ناقصك قطع تانية (فوق / تحت / جزمة) تكمّل بيها الطقم، أو الموسم/المناسبة مش مناسبين.</div></div>`;return;
+    box.innerHTML=`<div class="note">${ic('info')}<div><b>مفيش لون فيهم هيفتح أطقم جديدة (${esc(kn)}).</b> ممكن لأنه متكرر عندك بنفس الألوان، أو ناقصك قطع تانية (فوق / تحت / جزمة) تكمّل بيها الطقم، أو الموسم/الاستخدام مش مناسبين. جرّب استخدام تاني من القايمة.</div></div>`;return;
   }
   const tie=r.results.length>1&&r.results.every(x=>x.count===best.count&&Math.abs(x.avg-best.avg)<=1);
-  let h=`<div class="note" style="border-color:var(--accent)">${ic('check')}<div><b>الأفضل: ${esc(best.label)}</b><br>${tie?'الألوان متقاربة جدًا في القيمة؛ اختار اللي بتحبه. ':''}${buyReason(best,second,r.base)}</div></div>
+  const vd=verdictOf(best),autoNote=buy.occ==='auto'?`<p class="hint" style="margin-top:var(--sp-2)">الاستخدام اخترته تلقائي: ${esc(kn)}${best.gapGain?' (لأن عندك فجوة فيه)':''}. تقدر تغيّره من القايمة فوق.</p>`:'';
+  let h=`<div class="note" style="border-color:var(--accent)">${ic('check')}<div><b>الأفضل: ${esc(kn)} ${esc(best.label)}</b> <span class="pill ${vd[0]}">${vd[1]}</span><br>${tie?'الألوان متقاربة جدًا في القيمة؛ اختار اللي بتحبه. ':''}${buyReason(best,second,r.base,use)}</div></div>
     <div class="sec-h" style="margin-top:var(--sp-5)"><h2>المقارنة</h2></div>
     <div class="cmp">${r.results.map((x,n)=>`<div class="cmpc ${n===0?'best':''}"><i class="dotc" style="background:${x.hex};width:22px;height:22px"></i><b>${esc(x.label)}</b><span class="pill ${n===0?'g':''}">${x.count} طقم</span><small>تناسق ${x.avg}%</small><small>تنوع ${x.touched} قطعة</small><small>مكرر ${x.repeats}</small></div>`).join('')}</div>
-    <p class="hint">طقم جديد = مقبول التناسق (≥ ${GOOD}%) ومش مكرر لحاجة موجودة. التنوع = عدد قطعك اللي هتدخل في الأطقم الجديدة. المكرر = تركيبات اتشالت لأنها شبه أطقم موجودة.</p>`;
+    ${autoNote}<p class="hint">طقم جديد = مقبول التناسق (≥ ${GOOD}%) ومش مكرر لحاجة موجودة. التنوع = عدد قطعك اللي هتدخل في الأطقم الجديدة. المكرر = تركيبات اتشالت لأنها شبه أطقم موجودة.</p>`;
   h+=r.results.map(x=>{
     const rj=x.rejected,notes=[];if(rj.season)notes.push(rj.season+' تركيبة اتلغت لتعارض الموسم');if(rj.occ)notes.push(rj.occ+' تركيبة اتلغت لاختلاف المناسبة');
-    return `<div class="out" style="margin-top:var(--sp-3)"><div class="hd"><b><i class="dotc" style="background:${x.hex};display:inline-block;vertical-align:-1px"></i> ${esc(x.label)}${r.its&&occasionsKnown(r.its)?` <span class="sub">· ${esc(x.v.occ)}</span>`:''}</b><span class="pill ${x.count?'g':'b'}">${x.count} طقم</span></div>
+    return `<div class="out" style="margin-top:var(--sp-3)"><div class="hd"><b><i class="dotc" style="background:${x.hex};display:inline-block;vertical-align:-1px"></i> ${esc(x.label)}</b><span class="pill ${x.count?'g':'b'}">${x.count} طقم</span></div>
+      ${x.gapGain?`<p class="sub" style="margin-bottom:var(--sp-2)">بتسد فجوة في أطقم ${esc(use)}: ${x.before} ← ${x.before+x.gapGain} طقم.</p>`:''}
       ${x.examples.length?x.examples.map(o=>`<div style="margin-bottom:var(--sp-3)">${outfitRow(o)}<p class="hint">${exNames(o)} · ${o.score}%</p></div>`).join(''):'<p class="sub">مفيش أطقم جديدة بالون ده.</p>'}
       ${notes.length?`<p class="hint">${notes.join(' · ')}</p>`:''}
-      ${x.count?`<button class="btn ghost sm" data-add="1" data-t="${r.type}" data-c="${x.hex}" data-l="${esc(TYPES[r.type]+' '+x.label)}" type="button">${ic('plus')}<span>ضيفها للدولاب</span></button>`:''}</div>`}).join('');
+      ${x.count?`<button class="btn ghost sm" data-add="1" data-t="${r.type}" data-c="${x.hex}" data-o="${esc(use)}" data-l="${esc(kn+' '+x.label)}" type="button">${ic('plus')}<span>ضيفها للدولاب</span></button>`:''}</div>`}).join('');
   box.innerHTML=h;
-  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addFromSuggestion(b.dataset.t,b.dataset.c,b.dataset.l));
+  box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addFromSuggestion(b.dataset.t,b.dataset.c,b.dataset.l,b.dataset.o));
 }
 
 /* ---------- مقاساتي ---------- */
