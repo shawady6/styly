@@ -1,0 +1,98 @@
+[
+ {
+  "id": "D1",
+  "desc": "Occasion map shown; the weak occasion (رسمي: 0 outfits) is flagged",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D2",
+  "desc": "First suggestion is the formal shoes that unlock the dead formal pieces (kind=gap)",
+  "status": "PASS",
+  "detail": "[{'t': 'shoes', 'o': 'رسمي', 'k': 'gap', 'g': 1}, {'t': 'shoes', 'o': 'كاجوال', 'k': 'slot', 'g': 0}, {'t': 'outer', 'o': 'كاجوال', 'k': 'slot', 'g': 0}]"
+ },
+ {
+  "id": "D3",
+  "desc": "Suggestion titled by kind (جزمة كلاسيك + color), not just \"جزمة\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D4",
+  "desc": "Reason states the gap with before → after in words",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D5",
+  "desc": "One card per type+occasion; at most 4 cards; alternatives listed as text",
+  "status": "PASS",
+  "detail": "['shoes|رسمي', 'shoes|كاجوال', 'outer|كاجوال']"
+ },
+ {
+  "id": "D6",
+  "desc": "Pivot cards: carriers shown; formal pieces listed under \"بتتلبس مع قليل\"",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D7",
+  "desc": "Analysis saves nothing (item count unchanged)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D8",
+  "desc": "Add from suggestion presets the occasion (رسمي) and color; nothing saved before Save",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D9",
+  "desc": "Usage list depends on the type (shoes has جزمة كلاسيك; hoodie has no formal option)",
+  "status": "PASS",
+  "detail": "(['أنسب استخدام (تلقائي)', 'جزمة كلاسيك', 'كوتشي كاجوال', 'كوتشي رياضي', 'جزمة / كوتشي خروجة'], ['أنسب استخدام (تلقائي)', 'هودي كاجوال', 'هودي رياضي', 'هودي خروجة'])"
+ },
+ {
+  "id": "D10",
+  "desc": "Buy with chosen usage: gap noted, verdict \"بتسد فجوة مهمة\", compared colors use that usage",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D11",
+  "desc": "Auto usage picks the usage that fills the gap (رسمي) for shoes",
+  "status": "PASS",
+  "detail": "رسمي"
+ },
+ {
+  "id": "D12",
+  "desc": "Buy saves nothing; add button asks for confirmation first",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D13",
+  "desc": "No horizontal overflow at 320–1280 on the new needs screen",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "D14",
+  "desc": "Balanced wardrobe: no gap/slot suggestions (only an optional \"boost\" block, never filler)",
+  "status": "PASS",
+  "detail": "[]"
+ },
+ {
+  "id": "D15",
+  "desc": "Performance on 66 pieces (desktop Chromium): needs < 3 s, buy < 1.5 s",
+  "status": "PASS",
+  "detail": "(1983, 314)"
+ },
+ {
+  "id": "D16",
+  "desc": "No console/page errors in the whole run",
+  "status": "PASS",
+  "detail": "[]"
+ }
+]

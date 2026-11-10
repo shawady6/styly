@@ -134,3 +134,9 @@ Regression re-run on this build: Phase 1 suite 47/47 PASS (add/edit/delete, outf
 
 Adds: new measurement on any existing group, new custom item with its own measurements, delete (with confirm) for extra fields/items, validation (empty/duplicate/length/limits), HTML-escaped names, backup/restore of the new data, v1.5.0 data still loads. Regression re-run: v1.5 49/49 (S4/S5 now scoped to measurement inputs, the built-in fields are unchanged), Phase 1 47/47, v1.4 15/15. Found and fixed during testing: a helper name clashed with the photo-form helper in `screens.js` (caught by the existing suite).
 Limits: C14 restores through `cleanMeasure` + save (the same code the restore path calls), not through the file picker; no real device test.
+
+## 9. v1.6.0 — smarter suggestions — `tests/v16/v16_suite.py`: 16 / 16 PASS
+
+Gap map and weak-occasion flag, gap-first ranking (formal shoes unlock dead formal pieces), kind titles, before→after reasons, one card per type+occasion with alternatives, pivot cards, nothing saved, add-from-suggestion presets occasion, usage list per type, buy with chosen/auto usage, confirm before add, no overflow 320–1280, balanced wardrobe shows no filler, performance on 66 pieces, no console errors.
+Regression on this build: v1.5 49/49 (M4/M5 updated to the new ranking rules), v1.5.1 19/19, Phase 1 47/47, v1.4 15/15.
+**NOT TESTED:** real device speed (analysis is ~2 s on desktop; a phone may take several seconds, a spinner is shown), suggestion quality on the user's real wardrobe (tested on synthetic wardrobes only).

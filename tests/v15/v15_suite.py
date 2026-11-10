@@ -58,9 +58,11 @@ with sync_playwright() as p:
       for(const s of r.suggestions){const real={...s.v,id:99999,virtual:false};const after=baseline([...its,real]).count;out.push([s.count,after-r.base.count])}return out}""")
     rec('M3','Reported new-outfit count equals recount of the wardrobe before/after adding the piece',len(chk)>0 and all(a==b for a,b in chk),chk)
     ranks=pg.evaluate("analyzeNeeds(items.filter(i=>i.type!=='acc')).suggestions.map(s=>s.value)")
-    rec('M4','Suggestions ranked by value (descending), no more than 5',ranks==sorted(ranks,reverse=True) and len(ranks)<=5,ranks)
+    kinds=pg.evaluate("analyzeNeeds(items.filter(i=>i.type!=='acc')).suggestions.map(s=>s.kind)")
+    order_ok=all(['gap','slot','boost'].index(a)<=['gap','slot','boost'].index(b) for a,b in zip(kinds,kinds[1:]))
+    rec('M4','Suggestions: gap fillers first, then barely-covered slots, by value inside each group; at most 4 (v1.6 rule)',order_ok and len(ranks)<=4,(kinds,ranks))
     dup=pg.evaluate("(()=>{const s=analyzeNeeds(items.filter(i=>i.type!=='acc')).suggestions;return s.map(x=>x.v.type+x.label)})()")
-    rec('M5','No duplicate (type,color) suggestions and all create >= MIN_NEW outfits',len(dup)==len(set(dup)) and pg.evaluate("analyzeNeeds(items.filter(i=>i.type!=='acc')).suggestions.every(s=>s.count>=MIN_NEW)"),dup)
+    rec('M5','No duplicate (type,color) suggestions; each creates >= MIN_NEW outfits or fills an occasion gap',len(dup)==len(set(dup)) and pg.evaluate("analyzeNeeds(items.filter(i=>i.type!=='acc')).suggestions.every(s=>s.count>=MIN_NEW||s.gapGain>0)"),dup)
     ex_ok=pg.evaluate("""()=>{const its=items.filter(i=>i.type!=='acc'),r=analyzeNeeds(its);
       return r.suggestions.every(s=>s.examples.length>0&&s.examples.every(o=>{const j=judge(o.sel);return typeof j==='object'&&!r.base.sigs.has(o.sig)}))}""")
     rec('M6','Every example is a valid (score>=70, logical) outfit that does not already exist',ex_ok)
@@ -78,7 +80,7 @@ with sync_playwright() as p:
     ctx2.close()
     ctx3,pg3,e3=fresh(b,WARDROBE[:3]+WARDROBE[3:5]); pg3.click('#t-wardrobe'); pg3.click('#wn-need'); pg3.wait_for_timeout(1500)
     t3=pg3.inner_text('#w-need'); rec('M9','Limited wardrobe (5 items, no shoes): shows "analysis limited" notice naming what is missing',('التحليل محدود' in t3) and ('جزمة' in t3),t3[:160]); ctx3.close()
-    pg.evaluate("()=>{analyzeNeeds=(its)=>({base:baseline(its),suggestions:[]})}"); pg.click('#wn-mine'); pg.click('#wn-need'); pg.wait_for_timeout(300)
+    pg.evaluate("()=>{analyzeNeeds=(its)=>({base:baseline(its),gaps:occGaps(its,baseline(its)),suggestions:[],boosts:[]})}"); pg.click('#wn-mine'); pg.click('#wn-need'); pg.wait_for_timeout(300)
     rec('M10','Balanced wardrobe path: says nothing needed instead of filling the screen (UI path, engine stubbed)',('دولابك متوازن' in pg.inner_text('#needRes')))
     # ---------- اشتري إيه؟
     pg.reload(); pg.wait_for_timeout(500); pg.click('#t-wardrobe'); pg.click('#wn-buy'); pg.wait_for_timeout(200)

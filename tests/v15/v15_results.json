@@ -63,7 +63,7 @@
   "id": "M1",
   "desc": "Analysis renders ranked suggestions, each with reason, examples and counts",
   "status": "PASS",
-  "detail": "5"
+  "detail": "4"
  },
  {
   "id": "M2",
@@ -75,19 +75,19 @@
   "id": "M3",
   "desc": "Reported new-outfit count equals recount of the wardrobe before/after adding the piece",
   "status": "PASS",
-  "detail": "[[8, 8], [8, 8], [4, 4], [4, 4], [4, 4]]"
+  "detail": "[[1, 1], [1, 1], [8, 8], [4, 4]]"
  },
  {
   "id": "M4",
-  "desc": "Suggestions ranked by value (descending), no more than 5",
+  "desc": "Suggestions: gap fillers first, then barely-covered slots, by value inside each group; at most 4 (v1.6 rule)",
   "status": "PASS",
-  "detail": "[99, 99, 59, 58.9, 57.3]"
+  "detail": "(['gap', 'gap', 'slot', 'slot'], [51.7, 51.6, 99, 59])"
  },
  {
   "id": "M5",
-  "desc": "No duplicate (type,color) suggestions and all create >= MIN_NEW outfits",
+  "desc": "No duplicate (type,color) suggestions; each creates >= MIN_NEW outfits or fills an occasion gap",
   "status": "PASS",
-  "detail": "['shoesأسود', 'shoesبوردو', 'outerبوردو', 'outerأبيض', 'topأسود']"
+  "detail": "['bottomأبيض', 'topأبيض', 'shoesأسود', 'outerبوردو']"
  },
  {
   "id": "M6",
@@ -111,7 +111,7 @@
   "id": "M7c",
   "desc": "Confirm opens Add form with type/color preset; nothing saved yet",
   "status": "PASS",
-  "detail": "جزمة أسود"
+  "detail": "بنطلون قماش (كلاسيك) أبيض"
  },
  {
   "id": "M8",
@@ -123,7 +123,7 @@
   "id": "M9",
   "desc": "Limited wardrobe (5 items, no shoes): shows \"analysis limited\" notice naming what is missing",
   "status": "PASS",
-  "detail": "محتاج إيه؟\n\nبجرّب قطع افتراضية على دولابك (من غير ما أحفظ حاجة) وأشوف كام طقم جديد حقيقي هتفتحه.\n\nالتحليل محدود. مفيش عندك: جزمة. عدد القطع (5) قليل. النتايج تق"
+  "detail": "محتاج إيه؟\n\nبجرّب قطع افتراضية على دولابك (من غير ما أحفظ حاجة) وأشوف إيه اللي هيسد فجوة حقيقية عندك.\n\nالتحليل محدود. مفيش عندك: جزمة. عدد القطع (5) قليل. النتا"
  },
  {
   "id": "M10",
@@ -147,13 +147,13 @@
   "id": "B3",
   "desc": "Two-color comparison: results ranked, new-outfit counts shown per color",
   "status": "PASS",
-  "detail": "[['أسود', 4, 57.2], ['بوردو', 4, 57]]"
+  "detail": "[['بوردو', 1, 50], ['أسود', 0, 0]]"
  },
  {
   "id": "B4",
   "desc": "Three-color comparison works and is sorted by value",
   "status": "PASS",
-  "detail": "[['أسود', 4, 57.2], ['بوردو', 4, 57], ['خردلي', 4, 57]]"
+  "detail": "[['خردلي', 1, 50.5], ['بوردو', 1, 50], ['أسود', 0, 0]]"
  },
  {
   "id": "B5",
@@ -171,7 +171,7 @@
   "id": "B7",
   "desc": "Each color's count equals a real before/after recount",
   "status": "PASS",
-  "detail": "[[4, 4], [4, 4], [4, 4]]"
+  "detail": "[[1, 1], [1, 1], [0, 0]]"
  },
  {
   "id": "B8",

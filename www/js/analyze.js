@@ -57,13 +57,29 @@ function enumerate(L,stat){
 }
 const uniq=a=>{const m=new Map();for(const o of a){const p=m.get(o.sig);if(!p||o.score>p.score)m.set(o.sig,o)}return[...m.values()]};
 
+/* the occasion an outfit belongs to: the one most of its pieces have (ties go to the more formal one) */
+function occOfSel(sel){
+  const c={};for(const i of Object.values(sel))c[i.occ]=(c[i.occ]||0)+1;
+  return Object.keys(c).sort((a,b)=>c[b]-c[a]||(FORM[b]||0)-(FORM[a]||0))[0];
+}
+/* what a piece is called: type + the occasion the user gave it (there is no separate "style" field, so no data change) */
+const KIND={
+  top:{'رسمي':'قميص رسمي','كاجوال':'تيشيرت / قميص كاجوال','رياضي':'تيشيرت رياضي','خروجة':'قميص خروجة'},
+  hoodie:{'كاجوال':'هودي كاجوال','رياضي':'هودي رياضي','خروجة':'هودي خروجة'},
+  bottom:{'رسمي':'بنطلون قماش (كلاسيك)','كاجوال':'جينز / بنطلون كاجوال','رياضي':'بنطلون / شورت رياضي','خروجة':'بنطلون خروجة'},
+  shoes:{'رسمي':'جزمة كلاسيك','كاجوال':'كوتشي كاجوال','رياضي':'كوتشي رياضي','خروجة':'جزمة / كوتشي خروجة'},
+  outer:{'رسمي':'جاكيت / بليزر رسمي','كاجوال':'جاكيت كاجوال','رياضي':'جاكيت رياضي','خروجة':'جاكيت خروجة'}
+};
+const kindLabel=(t,o)=>(KIND[t]&&KIND[t][o])||TYPES[t];
+const occsFor=t=>KIND[t]?Object.keys(KIND[t]):OCCS;
 /* the wardrobe as it is now */
 function baseline(its){
   JC=new Map();
   const L=slotLists(its),all=enumerate(L,null),u=uniq(all),sigs=new Set(u.map(o=>o.sig)),used=new Set();
   for(const o of all)Object.values(o.sel).forEach(i=>used.add(i.id));
-  const core=[...L.top,...L.bottom,...L.shoes,...L.outer];
-  return{L,outfits:u,sigs,used,count:u.length,unused:core.filter(i=>!used.has(i.id))};
+  const core=[...L.top,...L.bottom,...L.shoes,...L.outer],byOcc={},pv={};
+  for(const o of u){const k=occOfSel(o.sel);byOcc[k]=(byOcc[k]||0)+1;for(const i of Object.values(o.sel))pv[i.id]=(pv[i.id]||0)+1}
+  return{L,outfits:u,sigs,used,count:u.length,byOcc,pv,unused:core.filter(i=>!used.has(i.id))};
 }
 function makeVirtual(type,color,occ,season){
   return{id:-1,virtual:true,name:'قطعة جديدة',type,color,occ:occ||'كاجوال',season:season||(type==='hoodie'?'شتا':'كل السنة'),pattern:'سادة',img:null};
@@ -77,7 +93,8 @@ function simulate(its,base,v){
   for(const o of fresh)for(const i of Object.values(o.sel)){if(i.id===-1)continue;touched.add(i.id);if(dead.has(i.id))unlocked.add(i.id)}
   const avg=fresh.length?Math.round(fresh.reduce((a,o)=>a+o.score,0)/fresh.length):0;
   fresh.sort((a,b)=>b.score-a.score);
-  return{v,count:fresh.length,avg,touched:touched.size,unlocked:unlocked.size,repeats,rejected:stat,
+  const byOcc={};for(const o of fresh){const k=occOfSel(o.sel);byOcc[k]=(byOcc[k]||0)+1}
+  return{v,byOcc,count:fresh.length,avg,touched:touched.size,unlocked:unlocked.size,repeats,rejected:stat,
     value:fresh.length*10+unlocked.size*8+touched.size*2+avg/10,examples:pickExamples(fresh,3)};
 }
 /* examples: highest scoring, but prefer different pieces so the user sees variety */
@@ -91,15 +108,28 @@ function pickExamples(list,n){
   for(const o of list){if(out.length>=n)break;if(!out.includes(o))out.push(o)}
   return out;
 }
-/* best occasion for a virtual piece: only when the wardrobe actually holds more than one occasion */
+/* occasions that matter for this wardrobe = occasions it already has pieces for */
 function occasionsKnown(its){return new Set(its.map(i=>i.occ)).size>1}
-function simulateBestOcc(its,base,type,color,season,occ){
-  if(occ&&occ!=='auto')return simulate(its,base,makeVirtual(type,color,occ,season));
+function occGaps(its,base){
+  const rel=[...new Set(its.map(i=>i.occ))],cnt=o=>base.byOcc[o]||0,max=Math.max(0,...rel.map(cnt));
+  const rows=rel.map(o=>({occ:o,n:cnt(o)})).sort((a,b)=>b.n-a.n);
+  const gaps=rows.filter(r=>r.n===0&&max>=3||r.n>0&&r.n<4&&max>=r.n*3).map(r=>({...r,lead:max}));
+  return{rows,max,gaps};
+}
+/* simulate one virtual piece for one occasion; gapGain = new outfits in an occasion the wardrobe is weak at */
+function simOcc(its,base,type,color,season,occ,gapSet){
+  const r=simulate(its,base,makeVirtual(type,color,occ,season));
+  r.occ=occ;r.before=base.byOcc[occ]||0;r.gapGain=gapSet.has(occ)?(r.byOcc[occ]||0):0;
+  r.value+=r.gapGain*12;
+  return r;
+}
+/* occasions worth testing for a type when the user did not choose one */
+function candOccs(its,base,type,gaps){
   const cnt={};its.forEach(i=>cnt[i.occ]=(cnt[i.occ]||0)+1);
-  const cand=occasionsKnown(its)?Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,2):['كاجوال'];
-  let best=null;
-  for(const o of cand){const r=simulate(its,base,makeVirtual(type,color,o,season));if(!best||r.value>best.value)best=r}
-  return best;
+  const known=occasionsKnown(its),ok=occsFor(type);
+  let c=known?[...gaps.gaps.map(g=>g.occ),...Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,1)]:['كاجوال'];
+  c=[...new Set(c)].filter(o=>ok.includes(o));
+  return c.length?c.slice(0,3):[ok.includes('كاجوال')?'كاجوال':ok[0]];
 }
 /* how much data the analysis has */
 function dataLevel(its){
@@ -109,25 +139,56 @@ function dataLevel(its){
   if(miss.length||n<8)return{level:'limited',miss,n};
   return{level:'ok',miss,n};
 }
-/* "محتاج إيه؟": try versatile colors on every slot and rank what adds real value */
+/* "محتاج إيه؟": 1) find occasion gaps, 2) try versatile colors per type/occasion, 3) keep only suggestions that matter */
 const NEED_LABELS=['أسود','أبيض','كحلي','رمادي','رمادي غامق','بيج','كاكي','جملي','بني','أزرق دنيم','سماوي','زيتي','بوردو','خردلي'];
 function analyzeNeeds(its){
-  const base=baseline(its),res=[],seen=new Set();
+  const base=baseline(its),gaps=occGaps(its,base),gapSet=new Set(gaps.gaps.map(g=>g.occ)),res=[];
   const cols=NEED_LABELS.map(l=>PAL.find(c=>c.label===l)).filter(Boolean);
-  for(const type of ['top','hoodie','bottom','shoes','outer'])for(const c of cols){
-    const r=simulateBestOcc(its,base,type,c.h,null,'auto');
-    r.label=c.label;
-    if(r.count>=MIN_NEW)res.push(r);
+  for(const type of ['top','hoodie','bottom','shoes','outer']){
+    const have=base.L[slotKey(type)].length;
+    for(const occ of candOccs(its,base,type,gaps))for(const c of cols){
+      const r=simOcc(its,base,type,c.h,null,occ,gapSet);r.label=c.label;r.have=have;
+      if(r.count<MIN_NEW&&!r.gapGain)continue;
+      /* only suggestions that matter: they fill an occasion gap, or a slot the wardrobe barely has, or add a lot */
+      r.kind=r.gapGain>=(r.before<2?1:2)?'gap':have<=2?'slot':(r.count>=6&&(r.unlocked>0||r.count>=10))?'boost':null;
+      if(r.kind)res.push(r);
+    }
   }
-  res.sort((a,b)=>b.value-a.value);
-  const out=[],perType={};
-  for(const r of res){const t=r.v.type;perType[t]=(perType[t]||0)+1;if(perType[t]>2)continue;out.push(r);if(out.length>=5)break}
-  return{base,suggestions:out};
+  /* gaps first, then barely-covered slots, then the rest; by value inside each group */
+  const KR={gap:0,slot:1,boost:2};
+  res.sort((a,b)=>KR[a.kind]-KR[b.kind]||b.value-a.value);
+  /* one suggestion per type+occasion; other colors that are nearly as good are listed as alternatives, not as extra cards */
+  const out=[];
+  for(const r of res){
+    const first=out.find(x=>x.v.type===r.v.type&&x.occ===r.occ);
+    if(first){if(r.kind===first.kind&&r.value>=first.value*0.85&&first.alts.length<3)first.alts.push(r.label);continue}
+    r.alts=[];out.push(r);
+  }
+  const needs=out.filter(r=>r.kind!=='boost').slice(0,4),boosts=out.filter(r=>r.kind==='boost').slice(0,2);
+  return{base,gaps,suggestions:needs,boosts};
 }
-/* "اشتري إيه؟": compare the colors the user is torn between */
+/* pieces that carry the wardrobe and pieces that hardly go with anything */
+function pivots(base){
+  const all=[...base.L.top,...base.L.bottom,...base.L.shoes,...base.L.outer],n=i=>base.pv[i.id]||0;
+  const strong=all.filter(i=>n(i)>=3).sort((a,b)=>n(b)-n(a)).slice(0,3);
+  const weak=all.filter(i=>n(i)<=1).sort((a,b)=>n(a)-n(b)).slice(0,4);
+  return{strong,weak,n};
+}
+/* "اشتري إيه؟": compare the colors the user is torn between; with no chosen usage, pick the usage that suits the pieces best */
 function compareColors(its,type,colors,occ,season){
-  const base=baseline(its);
-  const rs=colors.map(c=>{const r=simulateBestOcc(its,base,type,c.h,season||null,occ);r.label=c.label;r.hex=c.h;return r});
+  const base=baseline(its),gaps=occGaps(its,base),gapSet=new Set(gaps.gaps.map(g=>g.occ));
+  let use=occ;
+  if(!occ||occ==='auto'){
+    /* an occasion the wardrobe is weak at wins when this type can fill it; otherwise the usage with the most value */
+    let bestSum=-1,gapOcc=null,gapSum=-1;
+    for(const o of candOccs(its,base,type,gaps)){
+      const rr=colors.map(c=>simOcc(its,base,type,c.h,season||null,o,gapSet)),sum=rr.reduce((a,r)=>a+r.value,0);
+      if(sum>bestSum){bestSum=sum;use=o}
+      if(rr.some(r=>r.gapGain>0)&&sum>gapSum){gapSum=sum;gapOcc=o}
+    }
+    if(gapOcc)use=gapOcc;
+  }
+  const rs=colors.map(c=>{const r=simOcc(its,base,type,c.h,season||null,use,gapSet);r.label=c.label;r.hex=c.h;return r});
   rs.sort((a,b)=>b.value-a.value);
-  return{base,results:rs};
+  return{base,gaps,use,results:rs};
 }

@@ -80,3 +80,13 @@ New item type `hoodie`. In the Outfit Builder it is chosen **in the top slot** (
 **Backup/Restore.** Backup now includes `measurements`. Restore applies it only when present, so old backups still restore (and don't wipe measurements). Backup format otherwise unchanged.
 
 **Other.** `APP_VERSION` 1.5.0, SW cache `styly-v5` (+ new files), `newItem(type, preset)` accepts a preset used by "add this piece".
+
+## v1.6.0 addendum — smarter محتاج إيه؟ / اشتري إيه؟
+
+Same engine (`analyze.js`, scoring untouched), better decisions. No data-format change.
+- **Occasion map / gaps:** `baseline()` counts unique outfits per occasion (an outfit's occasion = what most of its pieces have, ties → more formal). `occGaps()` flags an occasion the wardrobe already has pieces for but is weak at (0 outfits, or <4 while another has ≥3×).
+- **Piece kinds without a new field:** a piece is described by type + the occasion the user gave it (`KIND`, e.g. جزمة + رسمي = جزمة كلاسيك, بنطلون + كاجوال = جينز / كاجوال). Suggestions and "add" presets use it (the add form gets the occasion preset).
+- **Noise filter:** a suggestion must (a) fill a gap (≥1 new outfit when the occasion has <2, else ≥2), or (b) fill a slot with ≤2 pieces (≥3 new outfits), or (c) be a "boost" (≥6 new outfits with an unlocked piece, or ≥10). Boosts are shown only when nothing else is needed. One card per type+occasion; near-equal colors (≥85% value) appear as "ألوان بديلة". Order: gap → slot → boost, then by value. Max 4.
+- **Pivot cards:** pieces in ≥3 outfits ("شايلة دولابك") and pieces in ≤1 ("بتتلبس مع قليل").
+- **اشتري إيه؟:** the user picks type + usage (list depends on type, e.g. no formal hoodie) + 2–3 colors. With "auto", an occasion the wardrobe is weak at wins if the type can fill it (the choice is stated and changeable). Verdict: "بتسد فجوة مهمة" / "إضافة قوية" (≥8) / "معقولة" (3–7) / "ضعيفة" (<3). Explanations use before → after outfit counts for the occasion.
+- Candidate occasions per type = gap occasions + the most common one (≤3). 66 pieces: needs ≈ 1.6–1.9 s, buy ≈ 0.3 s (desktop Chromium; slower phones will take longer).

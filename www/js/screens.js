@@ -229,7 +229,7 @@ function newItem(presetType,preset){
   resetForm();F.type=TYPES[presetType]?presetType:'top';
   $('#formTitle').textContent='قطعة جديدة';
   if(F.type==='hoodie')$('#season').value='شتا';
-  if(preset){if(preset.name)$('#name').value=preset.name;if(preset.color){F.color=preset.color;F.colorSrc='manual'}}
+  if(preset){if(preset.name)$('#name').value=preset.name;if(preset.color){F.color=preset.color;F.colorSrc='manual'}if(preset.occ&&OCCS.includes(preset.occ))$('#occ').value=preset.occ}
   drawTypeSeg();paintStage();syncColor();sheet('form');
 }
 async function editItem(id){
