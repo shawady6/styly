@@ -1,0 +1,92 @@
+[
+ {
+  "id": "E1",
+  "desc": "Button says \"شوف الأطقم\" with no color; clicking with none shows an error",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E2",
+  "desc": "Button stays \"شوف الأطقم\" with one color",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E3",
+  "desc": "One color: says how many new outfits it opens, no comparison block",
+  "status": "PASS",
+  "detail": "جينز / بنطلون كاجوال بيج إضافة قوية\nهتفتح 20 طقم جديد (متوسط تناسق 89%).\n\nالاستخدام اخترته تلقائي: جينز / بنطلون كاجوال. تقدر تغيّره من القايمة فوق.\n\nطقم جديد = مقبول التناسق (≥ 70%) ومش مكرر لحاجة مو"
+ },
+ {
+  "id": "E4",
+  "desc": "One color: single result card and an add button asking confirmation",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E5",
+  "desc": "\"شوف كل الأطقم (N)\" shown when there are more than the 3 examples",
+  "status": "PASS",
+  "detail": "(20, 'شوف كل الأطقم (20)')"
+ },
+ {
+  "id": "E6",
+  "desc": "First 12 outfits listed (or all if fewer), each with names and score",
+  "status": "PASS",
+  "detail": "12"
+ },
+ {
+  "id": "E7",
+  "desc": "\"عرض كمان\" loads the next chunk until all N are shown",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E8",
+  "desc": "Every one of the N new outfits is reachable",
+  "status": "PASS",
+  "detail": "(20, 20)"
+ },
+ {
+  "id": "E9",
+  "desc": "All listed outfits are distinct (no repeated combination) and each contains the virtual piece",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E10",
+  "desc": "Button toggles: hides the list again",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E11",
+  "desc": "Three colors: comparison + one \"all outfits\" button per color with its own list",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E12",
+  "desc": "Opening one color leaves the others closed (independent)",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E13",
+  "desc": "Nothing saved to the wardrobe",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E14",
+  "desc": "No horizontal overflow with the full list open",
+  "status": "PASS",
+  "detail": ""
+ },
+ {
+  "id": "E15",
+  "desc": "No console/page errors",
+  "status": "PASS",
+  "detail": "[]"
+ }
+]

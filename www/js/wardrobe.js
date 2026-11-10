@@ -109,15 +109,15 @@ const BUY_COLORS=(()=>{const s=new Set();return PAL.filter(c=>!s.has(c.label)&&s
 function renderBuy(){
   if(buy.res&&buy.res.n!==items.length)buy.res=null;   /* wardrobe changed: old comparison is stale */
   const el=$('#w-buy'),its=items.filter(i=>i.type!=='acc'),d=dataLevel(its);
-  let h=`<div class="page"><h2 class="h1">اشتري إيه؟</h2><p class="sub" style="margin-top:4px">اختار نوع القطعة ولونين أو تلاتة محتار بينهم، وأقولك أنهي أحسن لدولابك. القطع دي افتراضية ومش بتتحفظ.</p>`+limitedNote(d);
+  let h=`<div class="page"><h2 class="h1">اشتري إيه؟</h2><p class="sub" style="margin-top:4px">اختار نوع القطعة ولون (أو لحد تلاتة محتار بينهم)، وأقولك هتفتح كام طقم جديد وأنهي أحسن لدولابك. القطع دي افتراضية ومش بتتحفظ.</p>`+limitedNote(d);
   if(d.level==='none'){el.innerHTML=h+'</div>';return}
   h+=`<div class="f-l" id="bTl">نوع القطعة</div><div class="seg" id="bType" role="group" aria-labelledby="bTl">${BUY_TYPES.map(k=>`<button type="button" data-k="${k}" aria-pressed="${buy.type===k}" class="${buy.type===k?'on':''}">${TYPES[k]}</button>`).join('')}</div>
-    <div class="f-l" id="bCl">الألوان اللي محتار بينها (2 أو 3) — اخترت ${buy.cols.length}</div>
+    <div class="f-l" id="bCl">اللون أو الألوان (لون واحد أو لحد 3) — اخترت ${buy.cols.length}</div>
     <div class="swgrid" id="bCols" role="group" aria-labelledby="bCl">${BUY_COLORS.map(c=>`<button type="button" class="sws ${buy.cols.includes(c.label)?'on':''}" data-l="${esc(c.label)}" aria-pressed="${buy.cols.includes(c.label)}"><i style="background:${c.h}"></i><span>${esc(c.label)}</span></button>`).join('')}</div>
     <div class="two"><div><label class="f" for="bOcc">نوع القطعة / الاستخدام</label><select id="bOcc"><option value="auto">أنسب استخدام (تلقائي)</option>${occsFor(buy.type).map(o=>`<option value="${o}">${esc(kindLabel(buy.type,o))}</option>`).join('')}</select></div>
     <div><label class="f" for="bSea">الموسم</label><select id="bSea"><option value="auto">حسب النوع</option>${['كل السنة','صيف','شتا','مواسم انتقالية'].map(o=>`<option ${buy.season===o?'selected':''}>${o}</option>`).join('')}</select></div></div>
     <div class="err hide" id="bErr" role="alert"></div>
-    <button class="btn" id="bGo" type="button" style="margin-top:var(--sp-4)">${ic('mix')}<span>قارن الألوان</span></button><div id="bRes" class="sec"></div></div>`;
+    <button class="btn" id="bGo" type="button" style="margin-top:var(--sp-4)">${ic('mix')}<span>${buy.cols.length>1?'قارن الألوان':'شوف الأطقم'}</span></button><div id="bRes" class="sec"></div></div>`;
   el.innerHTML=h;
   $('#bOcc').value=buy.occ;$('#bSea').value=buy.season;
   $('#bType').querySelectorAll('button').forEach(b=>b.onclick=()=>{buy.type=b.dataset.k;if(!occsFor(buy.type).includes(buy.occ))buy.occ='auto';buy.res=null;renderBuy()});
@@ -132,7 +132,7 @@ function renderBuy(){
 }
 function runBuy(){
   const err=$('#bErr');
-  if(buy.cols.length<2){err.innerHTML=ic('alert')+'<span>اختار لونين على الأقل عشان أقارن.</span>';err.classList.remove('hide');return}
+  if(buy.cols.length<1){err.innerHTML=ic('alert')+'<span>اختار لون واحد على الأقل.</span>';err.classList.remove('hide');return}
   err.classList.add('hide');
   const its=items.filter(i=>i.type!=='acc'),cols=buy.cols.map(l=>BUY_COLORS.find(c=>c.label===l));
   $('#bRes').innerHTML='<p class="sub"><span class="spin" style="display:inline-block;vertical-align:-3px"></span> بقارن…</p>';
@@ -155,23 +155,44 @@ function drawBuyRes(){
   const r=buy.res,box=$('#bRes');if(!box||!r)return;
   const best=r.results[0],second=r.results[1],use=r.use,kn=kindLabel(r.type,use);
   if(r.results.every(x=>x.count===0)){
-    box.innerHTML=`<div class="note">${ic('info')}<div><b>مفيش لون فيهم هيفتح أطقم جديدة (${esc(kn)}).</b> ممكن لأنه متكرر عندك بنفس الألوان، أو ناقصك قطع تانية (فوق / تحت / جزمة) تكمّل بيها الطقم، أو الموسم/الاستخدام مش مناسبين. جرّب استخدام تاني من القايمة.</div></div>`;return;
+    box.innerHTML=`<div class="note">${ic('info')}<div><b>${r.results.length>1?'مفيش لون فيهم':'اللون ده مش'} هيفتح أطقم جديدة (${esc(kn)}).</b> ممكن لأنه متكرر عندك بنفس الألوان، أو ناقصك قطع تانية (فوق / تحت / جزمة) تكمّل بيها الطقم، أو الموسم/الاستخدام مش مناسبين. جرّب استخدام تاني من القايمة.</div></div>`;return;
   }
   const tie=r.results.length>1&&r.results.every(x=>x.count===best.count&&Math.abs(x.avg-best.avg)<=1);
   const vd=verdictOf(best),autoNote=buy.occ==='auto'?`<p class="hint" style="margin-top:var(--sp-2)">الاستخدام اخترته تلقائي: ${esc(kn)}${best.gapGain?' (لأن عندك فجوة فيه)':''}. تقدر تغيّره من القايمة فوق.</p>`:'';
-  let h=`<div class="note" style="border-color:var(--accent)">${ic('check')}<div><b>الأفضل: ${esc(kn)} ${esc(best.label)}</b> <span class="pill ${vd[0]}">${vd[1]}</span><br>${tie?'الألوان متقاربة جدًا في القيمة؛ اختار اللي بتحبه. ':''}${buyReason(best,second,r.base,use)}</div></div>
-    <div class="sec-h" style="margin-top:var(--sp-5)"><h2>المقارنة</h2></div>
-    <div class="cmp">${r.results.map((x,n)=>`<div class="cmpc ${n===0?'best':''}"><i class="dotc" style="background:${x.hex};width:22px;height:22px"></i><b>${esc(x.label)}</b><span class="pill ${n===0?'g':''}">${x.count} طقم</span><small>تناسق ${x.avg}%</small><small>تنوع ${x.touched} قطعة</small><small>مكرر ${x.repeats}</small></div>`).join('')}</div>
+  const multi=r.results.length>1;
+  let h=`<div class="note" style="border-color:var(--accent)">${ic('check')}<div><b>${multi?'الأفضل: ':''}${esc(kn)} ${esc(best.label)}</b> <span class="pill ${vd[0]}">${vd[1]}</span><br>${multi?'':`هتفتح <b>${best.count}</b> طقم جديد (متوسط تناسق ${best.avg}%)${best.gapGain?`، وبتسد فجوة في أطقم ${esc(use)} (عندك ${best.before||'ولا'} طقم، هتبقى ${best.before+best.gapGain})`:''}${best.unlocked?`، وبتشغّل ${best.unlocked} قطعة مش داخلة في أي طقم`:''}. `}${tie?'الألوان متقاربة جدًا في القيمة؛ اختار اللي بتحبه. ':''}${multi?buyReason(best,second,r.base,use):''}</div></div>
+    ${multi?`<div class="sec-h" style="margin-top:var(--sp-5)"><h2>المقارنة</h2></div>
+    <div class="cmp">${r.results.map((x,n)=>`<div class="cmpc ${n===0?'best':''}"><i class="dotc" style="background:${x.hex};width:22px;height:22px"></i><b>${esc(x.label)}</b><span class="pill ${n===0?'g':''}">${x.count} طقم</span><small>تناسق ${x.avg}%</small><small>تنوع ${x.touched} قطعة</small><small>مكرر ${x.repeats}</small></div>`).join('')}</div>`:''}
     ${autoNote}<p class="hint">طقم جديد = مقبول التناسق (≥ ${GOOD}%) ومش مكرر لحاجة موجودة. التنوع = عدد قطعك اللي هتدخل في الأطقم الجديدة. المكرر = تركيبات اتشالت لأنها شبه أطقم موجودة.</p>`;
   h+=r.results.map(x=>{
     const rj=x.rejected,notes=[];if(rj.season)notes.push(rj.season+' تركيبة اتلغت لتعارض الموسم');if(rj.occ)notes.push(rj.occ+' تركيبة اتلغت لاختلاف المناسبة');
     return `<div class="out" style="margin-top:var(--sp-3)"><div class="hd"><b><i class="dotc" style="background:${x.hex};display:inline-block;vertical-align:-1px"></i> ${esc(x.label)}</b><span class="pill ${x.count?'g':'b'}">${x.count} طقم</span></div>
       ${x.gapGain?`<p class="sub" style="margin-bottom:var(--sp-2)">بتسد فجوة في أطقم ${esc(use)}: ${x.before} ← ${x.before+x.gapGain} طقم.</p>`:''}
-      ${x.examples.length?x.examples.map(o=>`<div style="margin-bottom:var(--sp-3)">${outfitRow(o)}<p class="hint">${exNames(o)} · ${o.score}%</p></div>`).join(''):'<p class="sub">مفيش أطقم جديدة بالون ده.</p>'}
+      <div id="exs-${r.results.indexOf(x)}">${x.examples.length?x.examples.map(o=>`<div style="margin-bottom:var(--sp-3)">${outfitRow(o)}<p class="hint">${exNames(o)} · ${o.score}%</p></div>`).join(''):'<p class="sub">مفيش أطقم جديدة بالون ده.</p>'}</div>
       ${notes.length?`<p class="hint">${notes.join(' · ')}</p>`:''}
+      ${x.count>x.examples.length?`<button class="btn ghost sm" data-all="${r.results.indexOf(x)}" type="button" aria-expanded="false">${ic('mix')}<span>شوف كل الأطقم (${x.count})</span></button><div class="allo hide" id="allo-${r.results.indexOf(x)}"></div> `:''}
       ${x.count?`<button class="btn ghost sm" data-add="1" data-t="${r.type}" data-c="${x.hex}" data-o="${esc(use)}" data-l="${esc(kn+' '+x.label)}" type="button">${ic('plus')}<span>ضيفها للدولاب</span></button>`:''}</div>`}).join('');
   box.innerHTML=h;
   box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addFromSuggestion(b.dataset.t,b.dataset.c,b.dataset.l,b.dataset.o));
+  box.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>toggleAll(+b.dataset.all,b));
+}
+/* every new outfit for one color, 12 at a time */
+const ALLN=12;
+function toggleAll(n,btn){
+  const x=buy.res&&buy.res.results[n],c=$('#allo-'+n);if(!x||!c)return;
+  const open=c.classList.contains('hide');
+  c.classList.toggle('hide',!open);const ex=$('#exs-'+n);if(ex)ex.classList.toggle('hide',open);btn.setAttribute('aria-expanded',open);
+  btn.querySelector('span').textContent=open?'إخفاء الأطقم':'شوف كل الأطقم ('+x.count+')';
+  if(!open||c.dataset.n)return;
+  c.dataset.n='0';moreAll(n);
+}
+function moreAll(n){
+  const x=buy.res.results[n],c=$('#allo-'+n),from=+c.dataset.n,to=Math.min(x.all.length,from+ALLN);
+  c.querySelector('.allm')&&c.querySelector('.allm').remove();
+  c.insertAdjacentHTML('beforeend',x.all.slice(from,to).map(o=>`<div class="alli">${outfitRow(o)}<p class="hint">${exNames(o)} · ${o.score}%</p></div>`).join('')+
+    (to<x.all.length?`<button type="button" class="btn ghost sm allm">عرض ${Math.min(ALLN,x.all.length-to)} كمان (باقي ${x.all.length-to})</button>`:''));
+  c.dataset.n=to;
+  const m=c.querySelector('.allm');if(m)m.onclick=()=>moreAll(n);
 }
 
 /* ---------- مقاساتي ---------- */
