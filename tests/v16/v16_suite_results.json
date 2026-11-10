@@ -87,7 +87,7 @@
   "id": "D15",
   "desc": "Performance on 66 pieces (desktop Chromium): needs < 3 s, buy < 1.5 s",
   "status": "PASS",
-  "detail": "(1983, 314)"
+  "detail": "(1925, 282)"
  },
  {
   "id": "D16",

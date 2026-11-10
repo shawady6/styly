@@ -140,3 +140,6 @@ Limits: C14 restores through `cleanMeasure` + save (the same code the restore pa
 Gap map and weak-occasion flag, gap-first ranking (formal shoes unlock dead formal pieces), kind titles, before→after reasons, one card per type+occasion with alternatives, pivot cards, nothing saved, add-from-suggestion presets occasion, usage list per type, buy with chosen/auto usage, confirm before add, no overflow 320–1280, balanced wardrobe shows no filler, performance on 66 pieces, no console errors.
 Regression on this build: v1.5 49/49 (M4/M5 updated to the new ranking rules), v1.5.1 19/19, Phase 1 47/47, v1.4 15/15.
 **NOT TESTED:** real device speed (analysis is ~2 s on desktop; a phone may take several seconds, a spinner is shown), suggestion quality on the user's real wardrobe (tested on synthetic wardrobes only).
+
+## 10. v1.6.1 — اشتري إيه؟: one color + all outfits — `tests/v161/v161_suite.py`: 15 / 15 PASS
+One color is enough (button "شوف الأطقم", count of new outfits, no comparison); per-color "شوف كل الأطقم (N)" lists every new outfit 12 at a time, independent per color, distinct combinations each containing the virtual piece, nothing saved, no overflow, no console errors. Regression: v1.6 16/16, v1.5 49/49, v1.5.1 19/19, Phase 1 47/47, v1.4 15/15. NOT TESTED: real device.

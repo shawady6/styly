@@ -95,7 +95,7 @@ function simulate(its,base,v){
   fresh.sort((a,b)=>b.score-a.score);
   const byOcc={};for(const o of fresh){const k=occOfSel(o.sel);byOcc[k]=(byOcc[k]||0)+1}
   return{v,byOcc,count:fresh.length,avg,touched:touched.size,unlocked:unlocked.size,repeats,rejected:stat,
-    value:fresh.length*10+unlocked.size*8+touched.size*2+avg/10,examples:pickExamples(fresh,3)};
+    value:fresh.length*10+unlocked.size*8+touched.size*2+avg/10,examples:pickExamples(fresh,3),all:fresh};
 }
 /* examples: highest scoring, but prefer different pieces so the user sees variety */
 function pickExamples(list,n){

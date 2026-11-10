@@ -359,3 +359,5 @@ input[aria-invalid=true]{border-color:var(--danger)}
 .pvt{display:grid;gap:var(--sp-1);justify-items:center;text-align:center}
 .pvt .pic{width:100%}
 .pvt small{font-size:var(--fs-xs);color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.allo{margin-top:var(--sp-3)}
+.alli{margin-bottom:var(--sp-3);padding-top:var(--sp-3);border-top:1px dashed var(--line)}
